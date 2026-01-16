@@ -155,7 +155,8 @@ elseif(EMSCRIPTEN)
     
     target_link_options(hardening-test PRIVATE
         # Emscripten-specific link options
-        # Generate Node.js compatible output
+        # Target Node.js environment specifically
+        -sENVIRONMENT=node
         -sNODEJS_CATCH_EXIT=0
         -sNODEJS_CATCH_REJECTION=0
     )

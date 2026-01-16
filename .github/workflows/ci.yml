@@ -129,8 +129,11 @@ jobs:
       - name: Build
         run: cmake --build --preset=emscripten-wasm
 
+      - name: List generated files
+        run: ls -lh ./build/emscripten-wasm/
+
       - name: Run with Node.js
-        run: node ./build/emscripten-wasm/hardening-test.wasm
+        run: node ./build/emscripten-wasm/hardening-test.js
 
   # Static Analysis
   static-analysis:

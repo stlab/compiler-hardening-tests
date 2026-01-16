@@ -150,8 +150,14 @@ elseif(EMSCRIPTEN)
         -Wpedantic
     )
     
+    # Set output file extension to .js (which will also generate .wasm)
+    set_target_properties(hardening-test PROPERTIES SUFFIX ".js")
+    
     target_link_options(hardening-test PRIVATE
         # Emscripten-specific link options
+        # Generate Node.js compatible output
+        -sNODEJS_CATCH_EXIT=0
+        -sNODEJS_CATCH_REJECTION=0
     )
 endif()
 

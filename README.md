@@ -192,15 +192,15 @@ endif()
 
 ## Static Analysis
 
-The project includes clang-tidy configuration for static analysis:
+The project includes a dedicated clang-tidy preset that runs static analysis during compilation:
 
 ```bash
-# Configure the project first
-cmake --preset=clang-x64
-
-# Run clang-tidy
-clang-tidy main.cpp -p build/clang-x64
+# Configure and build with clang-tidy enabled
+cmake --preset=clang-tidy
+cmake --build --preset=clang-tidy
 ```
+
+The clang-tidy preset is based on `clang-x64` and sets `CMAKE_CXX_CLANG_TIDY` to run clang-tidy automatically on all source files during build.
 
 ## Continuous Integration
 

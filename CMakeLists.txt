@@ -23,10 +23,18 @@ add_executable(hardening-test main.cpp)
 
 # Helper function to add architecture-specific flags
 function(add_arch_specific_flags target)
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
+    # Determine target architecture
+    set(TARGET_ARCH "")
+    if(APPLE AND CMAKE_OSX_ARCHITECTURES)
+        set(TARGET_ARCH ${CMAKE_OSX_ARCHITECTURES})
+    else()
+        set(TARGET_ARCH ${CMAKE_SYSTEM_PROCESSOR})
+    endif()
+    
+    if(TARGET_ARCH MATCHES "x86_64|AMD64")
         # x86-64 specific flags will go here
         message(STATUS "Configuring for x86-64 architecture")
-    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|ARM64|arm64")
+    elseif(TARGET_ARCH MATCHES "aarch64|ARM64|arm64")
         # ARM64 specific flags will go here
         message(STATUS "Configuring for ARM64 architecture")
     elseif(EMSCRIPTEN)

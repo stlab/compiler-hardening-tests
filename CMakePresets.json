@@ -30,9 +30,8 @@
       "description": "Apple Clang compiler on x86-64 architecture",
       "inherits": "default",
       "cacheVariables": {
-        "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
-        "CMAKE_SYSTEM_PROCESSOR": "x86_64"
+        "CMAKE_OSX_ARCHITECTURES": "x86_64"
       },
       "condition": {
         "type": "equals",
@@ -46,9 +45,8 @@
       "description": "Apple Clang compiler on ARM64 architecture",
       "inherits": "default",
       "cacheVariables": {
-        "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
-        "CMAKE_SYSTEM_PROCESSOR": "arm64"
+        "CMAKE_OSX_ARCHITECTURES": "arm64"
       },
       "condition": {
         "type": "equals",
@@ -62,7 +60,6 @@
       "description": "Clang compiler on x86-64 architecture",
       "inherits": "default",
       "cacheVariables": {
-        "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
         "CMAKE_SYSTEM_PROCESSOR": "x86_64"
       },
@@ -78,7 +75,6 @@
       "description": "Clang compiler on ARM64 architecture",
       "inherits": "default",
       "cacheVariables": {
-        "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
         "CMAKE_SYSTEM_PROCESSOR": "aarch64"
       },
@@ -94,7 +90,6 @@
       "description": "GCC compiler on x86-64 architecture",
       "inherits": "default",
       "cacheVariables": {
-        "CMAKE_C_COMPILER": "gcc",
         "CMAKE_CXX_COMPILER": "g++",
         "CMAKE_SYSTEM_PROCESSOR": "x86_64"
       },
@@ -110,7 +105,6 @@
       "description": "GCC compiler on ARM64 architecture",
       "inherits": "default",
       "cacheVariables": {
-        "CMAKE_C_COMPILER": "gcc",
         "CMAKE_CXX_COMPILER": "g++",
         "CMAKE_SYSTEM_PROCESSOR": "aarch64"
       },
@@ -162,6 +156,15 @@
         "CMAKE_SYSTEM_NAME": "Emscripten",
         "CMAKE_SYSTEM_PROCESSOR": "wasm"
       }
+    },
+    {
+      "name": "clang-tidy",
+      "displayName": "Clang-Tidy Static Analysis",
+      "description": "Clang x86-64 with clang-tidy enabled",
+      "inherits": "clang-x64",
+      "cacheVariables": {
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy;--warnings-as-errors=*"
+      }
     }
   ],
   "buildPresets": [
@@ -201,43 +204,6 @@
       "name": "emscripten-wasm",
       "configurePreset": "emscripten-wasm"
     }
-  ],
-  "testPresets": [
-    {
-      "name": "apple-clang-x64",
-      "configurePreset": "apple-clang-x64"
-    },
-    {
-      "name": "apple-clang-arm64",
-      "configurePreset": "apple-clang-arm64"
-    },
-    {
-      "name": "clang-x64",
-      "configurePreset": "clang-x64"
-    },
-    {
-      "name": "clang-arm64",
-      "configurePreset": "clang-arm64"
-    },
-    {
-      "name": "gcc-x64",
-      "configurePreset": "gcc-x64"
-    },
-    {
-      "name": "gcc-arm64",
-      "configurePreset": "gcc-arm64"
-    },
-    {
-      "name": "msvc-x64",
-      "configurePreset": "msvc-x64"
-    },
-    {
-      "name": "msvc-arm64",
-      "configurePreset": "msvc-arm64"
-    },
-    {
-      "name": "emscripten-wasm",
-      "configurePreset": "emscripten-wasm"
-    }
   ]
+
 }

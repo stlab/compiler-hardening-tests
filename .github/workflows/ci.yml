@@ -29,24 +29,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ninja-build cmake
-
-          # Install compilers
-          if [[ "${{ matrix.compiler }}" == gcc-* ]]; then
-            sudo apt-get install -y ${{ matrix.cxx }}
-          elif [[ "${{ matrix.compiler }}" == clang-* ]]; then
-            wget https://apt.llvm.org/llvm.sh
-            chmod +x llvm.sh
-            sudo ./llvm.sh ${matrix.compiler#clang-}
-          fi
-
-      - name: Install clang-tidy
-        run: |
-          sudo apt-get install -y clang-tidy
-
       - name: Configure CMake
         run: |
           cmake --preset=${{ matrix.preset }} \
@@ -104,14 +86,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Setup MSVC
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: ${{ matrix.arch }}
-
-      - name: Install CMake and Ninja
-        run: |
-          choco install cmake ninja
+      # - name: Setup MSVC
+      #   uses: ilammy/msvc-dev-cmd@v1
+      #   with:
+      #     arch: ${{ matrix.arch }}
 
       - name: Configure CMake
         run: cmake --preset=${{ matrix.preset }}
@@ -152,7 +130,7 @@ jobs:
         run: cmake --build --preset=emscripten-wasm
 
       - name: Run with Node.js
-        run: node ./build/emscripten-wasm/hardening-test.js
+        run: node ./build/emscripten-wasm/hardening-test.wasm
 
   # Static Analysis
   static-analysis:
@@ -163,9 +141,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Configure CMake
-        run: cmake --preset=clang-x64
-
-      - name: Run clang-tidy
+      - name: Configure and Build with clang-tidy
         run: |
-          clang-tidy main.cpp -p build/clang-x64 --warnings-as-errors=''
+          cmake --preset=clang-tidy
+          cmake --build --preset=clang-tidy

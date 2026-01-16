@@ -203,6 +203,10 @@
     {
       "name": "emscripten-wasm",
       "configurePreset": "emscripten-wasm"
+    },
+    {
+      "name": "clang-tidy",
+      "configurePreset": "clang-tidy"
     }
   ]
 

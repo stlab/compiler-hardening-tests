@@ -119,8 +119,14 @@
       "displayName": "MSVC x86-64",
       "description": "MSVC compiler on x86-64 architecture",
       "inherits": "default",
-      "generator": "Visual Studio 17 2022",
-      "architecture": "x64",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "toolset": {
+        "value": "host=x64",
+        "strategy": "external"
+      },
       "cacheVariables": {
         "CMAKE_SYSTEM_PROCESSOR": "AMD64"
       },
@@ -135,8 +141,14 @@
       "displayName": "MSVC ARM64",
       "description": "MSVC compiler on ARM64 architecture",
       "inherits": "default",
-      "generator": "Visual Studio 17 2022",
-      "architecture": "ARM64",
+      "architecture": {
+        "value": "ARM64",
+        "strategy": "external"
+      },
+      "toolset": {
+        "value": "host=x64",
+        "strategy": "external"
+      },
       "cacheVariables": {
         "CMAKE_SYSTEM_PROCESSOR": "ARM64"
       },
@@ -209,5 +221,4 @@
       "configurePreset": "clang-tidy"
     }
   ]
-
 }

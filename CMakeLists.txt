@@ -157,6 +157,8 @@ elseif(EMSCRIPTEN)
         # Emscripten-specific link options
         # Target Node.js environment specifically
         -sENVIRONMENT=node
+        # Embed wasm as base64 in JS to avoid fetch() URL issues with Node.js
+        -sSINGLE_FILE=1
         -sNODEJS_CATCH_EXIT=0
         -sNODEJS_CATCH_REJECTION=0
     )

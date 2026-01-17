@@ -1,5 +1,7 @@
 # Compiler Hardening Tests
 
+[![CI](https://github.com/stlab/compiler-hardening-tests/actions/workflows/ci.yml/badge.svg)](https://github.com/stlab/compiler-hardening-tests/actions/workflows/ci.yml)
+
 **Note: This is a work in progress. Nothing to see here yet.**
 
 A C++20 project for testing and verifying compiler hardening options across multiple compilers and

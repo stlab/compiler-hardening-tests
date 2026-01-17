@@ -11,19 +11,33 @@ jobs:
   # Linux builds with GCC and Clang
   linux:
     name: ${{ matrix.compiler }} - ${{ matrix.arch }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
         include:
+          # x86-64 builds
           - compiler: gcc-14
             cxx: g++-14
             preset: gcc-x64
             arch: x86_64
+            runner: ubuntu-latest
           - compiler: clang-18
             cxx: clang++-18
             preset: clang-x64
             arch: x86_64
+            runner: ubuntu-latest
+          # ARM64 builds
+          - compiler: gcc-14
+            cxx: g++-14
+            preset: gcc-arm64
+            arch: arm64
+            runner: ubuntu-24.04-arm
+          - compiler: clang-18
+            cxx: clang++-18
+            preset: clang-arm64
+            arch: arm64
+            runner: ubuntu-24.04-arm
 
     steps:
       - name: Checkout code
@@ -49,7 +63,7 @@ jobs:
       matrix:
         include:
           - arch: x86_64
-            runner: macos-latest
+            runner: macos-15-intel
             preset: apple-clang-x64
           - arch: arm64
             runner: macos-latest
@@ -71,25 +85,21 @@ jobs:
   # Windows builds with MSVC
   windows:
     name: MSVC - ${{ matrix.arch }}
-    runs-on: windows-latest
+    runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
-        arch: [x64, ARM64]
         include:
           - arch: x64
             preset: msvc-x64
-          - arch: ARM64
+            runner: windows-latest
+          - arch: arm64
             preset: msvc-arm64
+            runner: windows-11-arm
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-
-      # - name: Setup MSVC
-      #   uses: ilammy/msvc-dev-cmd@v1
-      #   with:
-      #     arch: ${{ matrix.arch }}
 
       - name: Configure CMake
         run: cmake --preset=${{ matrix.preset }}
@@ -98,8 +108,7 @@ jobs:
         run: cmake --build --preset=${{ matrix.preset }}
 
       - name: Run
-        if: matrix.arch == 'x64'
-        run: .\build\${{ matrix.preset }}\Debug\hardening-test.exe
+        run: .\build\${{ matrix.preset }}\Release\hardening-test.exe
 
   # WebAssembly build with Emscripten
   emscripten:

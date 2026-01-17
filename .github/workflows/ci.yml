@@ -113,11 +113,7 @@ jobs:
       - name: Setup Emscripten
         uses: mymindstorm/setup-emsdk@v14
         with:
-          # Make sure to set a version number!
-          version: 1.38.40
-          # This is the name of the cache folder.
-          # The cache folder will be placed in the build directory,
-          #  so make sure it doesn't conflict with anything!
+          version: 4.0.23
           actions-cache-folder: "emsdk-cache"
 
       - name: Verify
@@ -133,7 +129,7 @@ jobs:
         run: ls -lh ./build/emscripten-wasm/
 
       - name: Run with Node.js
-        run: node ./build/emscripten-wasm/hardening-test.js
+        run: $EMSDK_NODE ./build/emscripten-wasm/hardening-test.js
 
   # Static Analysis
   static-analysis:

@@ -108,7 +108,7 @@ jobs:
         run: cmake --build --preset=${{ matrix.preset }}
 
       - name: Run
-        run: .\build\${{ matrix.preset }}\Release\hardening-test.exe
+        run: .\build\${{ matrix.preset }}\hardening-test.exe
 
   # WebAssembly build with Emscripten
   emscripten:

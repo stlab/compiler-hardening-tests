@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clang Diagnostic Flags Explorer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --bg-hover: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --accent-blue: #58a6ff;
+            --accent-green: #3fb950;
+            --accent-orange: #d29922;
+            --accent-red: #f85149;
+            --accent-purple: #a371f7;
+            --border-color: #30363d;
+            --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(ellipse at 20% 0%, rgba(88, 166, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(163, 113, 247, 0.08) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            padding-left: 3rem;
+            font-size: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .panel-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+        }
+
+        .panel-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .panel-title-icon {
+            color: var(--accent-blue);
+        }
+
+        .panel-content {
+            padding: 1rem;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .panel-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .panel-content::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        .panel-content::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        .panel-content::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        .flag-list {
+            list-style: none;
+        }
+
+        .flag-item {
+            padding: 0.75rem 1rem;
+            margin: 0.25rem 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .flag-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .flag-item.selected {
+            background: linear-gradient(135deg, rgba(88, 166, 255, 0.15), rgba(163, 113, 247, 0.15));
+            border: 1px solid var(--accent-blue);
+        }
+
+        .flag-name {
+            color: var(--accent-green);
+            word-break: break-all;
+        }
+
+        .flag-badges {
+            display: flex;
+            gap: 0.25rem;
+            flex-shrink: 0;
+        }
+
+        .badge {
+            font-size: 0.65rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-error {
+            background: rgba(248, 81, 73, 0.2);
+            color: var(--accent-red);
+        }
+
+        .badge-default {
+            background: rgba(63, 185, 80, 0.2);
+            color: var(--accent-green);
+        }
+
+        .badge-some-default {
+            background: rgba(210, 153, 34, 0.2);
+            color: var(--accent-orange);
+        }
+
+        .badge-count {
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+
+        .detail-panel .panel-content {
+            padding: 1.5rem;
+        }
+
+        .detail-empty {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .detail-empty-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .selected-flag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            color: var(--accent-green);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .relation-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .relation-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .relation-title .arrow {
+            font-size: 1.2rem;
+        }
+
+        .relation-title.implies .arrow {
+            color: var(--accent-orange);
+        }
+
+        .relation-title.implied-by .arrow {
+            color: var(--accent-purple);
+        }
+
+        .relation-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .relation-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--accent-blue);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .relation-tag:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-blue);
+        }
+
+        .relation-tag.implies-tag {
+            color: var(--accent-orange);
+        }
+
+        .relation-tag.implied-by-tag {
+            color: var(--accent-purple);
+        }
+
+        .relation-tag.direct {
+            font-weight: 600;
+            border-width: 2px;
+        }
+
+        .relation-tag.implies-tag.direct {
+            border-color: var(--accent-orange);
+        }
+
+        .relation-tag.implied-by-tag.direct {
+            border-color: var(--accent-purple);
+        }
+
+        .no-relations {
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: rgba(248, 81, 73, 0.1);
+            border: 1px solid var(--accent-red);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--accent-red);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔍 Clang Diagnostic Flags Explorer</h1>
+            <p class="subtitle">Explore relationships between Clang warning flags</p>
+        </header>
+
+        <div class="search-container">
+            <span class="search-icon">⌕</span>
+            <input 
+                type="text" 
+                class="search-input" 
+                id="search" 
+                placeholder="Search flags... (e.g., -Wall, -Wextra, -Wconversion)"
+                autocomplete="off"
+            >
+        </div>
+
+        <div class="stats" id="stats">
+            <!-- Populated by JS -->
+        </div>
+
+        <div class="main-content">
+            <div class="panel flags-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">
+                        <span class="panel-title-icon">📋</span>
+                        Diagnostic Flags
+                        <span id="visible-count" style="color: var(--text-muted); font-weight: 400; margin-left: auto;"></span>
+                    </h2>
+                </div>
+                <div class="panel-content" id="flags-list-container">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <p>Loading diagnostic flags...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel detail-panel">
+                <div class="panel-header">
+                    <h2 class="panel-title">
+                        <span class="panel-title-icon">🔗</span>
+                        Flag Details
+                    </h2>
+                </div>
+                <div class="panel-content" id="detail-container">
+                    <div class="detail-empty">
+                        <div class="detail-empty-icon">👈</div>
+                        <p>Select a flag to see its relationships</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>
+                Data source: <a href="https://clang.llvm.org/docs/DiagnosticsReference.html" target="_blank">Clang Diagnostics Reference</a>
+            </p>
+            <p style="margin-top: 0.5rem;">
+                Run <code>python parse_diagnostics.py</code> to refresh the data
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        let diagnosticsData = null;
+        let selectedFlag = null;
+
+        // Load the diagnostics data
+        async function loadData() {
+            try {
+                const response = await fetch('diagnostics.json');
+                if (!response.ok) {
+                    throw new Error('Failed to load diagnostics.json. Run parse_diagnostics.py first.');
+                }
+                diagnosticsData = await response.json();
+                renderStats();
+                renderFlagsList();
+            } catch (error) {
+                document.getElementById('flags-list-container').innerHTML = `
+                    <div class="error-message">
+                        <p><strong>Error loading data:</strong></p>
+                        <p>${error.message}</p>
+                        <p style="margin-top: 1rem; color: var(--text-secondary);">
+                            Run the parser first:<br>
+                            <code>python parse_diagnostics.py</code>
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderStats() {
+            const flags = diagnosticsData.flags;
+            const totalFlags = Object.keys(flags).length;
+            const flagsWithImplies = Object.values(flags).filter(f => f.implies.length > 0).length;
+            const flagsWithImpliedBy = Object.values(flags).filter(f => f.implied_by.length > 0).length;
+            const defaultFlags = Object.values(flags).filter(f => f.is_default).length;
+
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-value">${totalFlags}</div>
+                    <div class="stat-label">Total Flags</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${flagsWithImplies}</div>
+                    <div class="stat-label">With Implications</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${flagsWithImpliedBy}</div>
+                    <div class="stat-label">Implied by Others</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${defaultFlags}</div>
+                    <div class="stat-label">Enabled by Default</div>
+                </div>
+            `;
+        }
+
+        function renderFlagsList(filter = '') {
+            const container = document.getElementById('flags-list-container');
+            const flags = diagnosticsData.flags;
+            const filterLower = filter.toLowerCase();
+
+            const matchingFlags = Object.entries(flags)
+                .filter(([name, _]) => name.toLowerCase().includes(filterLower))
+                .sort((a, b) => a[0].localeCompare(b[0]));
+
+            document.getElementById('visible-count').textContent = 
+                filter ? `${matchingFlags.length} of ${Object.keys(flags).length}` : '';
+
+            if (matchingFlags.length === 0) {
+                container.innerHTML = `
+                    <div class="detail-empty">
+                        <p>No flags match "${filter}"</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const html = `
+                <ul class="flag-list">
+                    ${matchingFlags.map(([name, data]) => {
+                        // Count total implied flags (transitive)
+                        const impliesCount = (data.implies_transitive || data.implies || []).length;
+                        return `
+                            <li class="flag-item ${selectedFlag === name ? 'selected' : ''}" 
+                                data-flag="${name}"
+                                onclick="selectFlag('${name}')">
+                                <span class="flag-name">${name}</span>
+                                <span class="flag-badges">
+                                    ${data.is_error ? '<span class="badge badge-error">Error</span>' : ''}
+                                    ${data.is_default ? '<span class="badge badge-default">Default</span>' : ''}
+                                    ${data.some_default ? '<span class="badge badge-some-default">Partial</span>' : ''}
+                                    ${impliesCount > 0 ? `<span class="badge badge-count">→${impliesCount}</span>` : ''}
+                                </span>
+                            </li>
+                        `;
+                    }).join('')}
+                </ul>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function getAllImpliedBy(flagName, visited = new Set()) {
+            if (visited.has(flagName)) return new Set();
+            visited.add(flagName);
+
+            const result = new Set();
+            const flag = diagnosticsData.flags[flagName];
+            if (flag) {
+                for (const implier of flag.implied_by) {
+                    result.add(implier);
+                    const transitive = getAllImpliedBy(implier, visited);
+                    transitive.forEach(f => result.add(f));
+                }
+            }
+            return result;
+        }
+
+        function selectFlag(flagName) {
+            selectedFlag = flagName;
+            renderFlagsList(document.getElementById('search').value);
+            renderDetail();
+        }
+
+        function renderDetail() {
+            const container = document.getElementById('detail-container');
+
+            if (!selectedFlag || !diagnosticsData.flags[selectedFlag]) {
+                container.innerHTML = `
+                    <div class="detail-empty">
+                        <div class="detail-empty-icon">👈</div>
+                        <p>Select a flag to see its relationships</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const flag = diagnosticsData.flags[selectedFlag];
+            
+            // Always show complete transitive list, sorted alphabetically
+            const allImplied = (flag.implies_transitive || []).slice().sort();
+            const directImplies = new Set(flag.implies || []);
+            
+            // Compute transitive implied_by
+            const allImpliedBy = Array.from(getAllImpliedBy(selectedFlag)).sort();
+            const directImpliedBy = new Set(flag.implied_by || []);
+
+            // Build status badges
+            let statusBadges = [];
+            if (flag.is_error) statusBadges.push('<span class="badge badge-error">Error by default</span>');
+            if (flag.is_default) statusBadges.push('<span class="badge badge-default">Enabled by default</span>');
+            if (flag.some_default) statusBadges.push('<span class="badge badge-some-default">Some sub-flags enabled by default</span>');
+
+            container.innerHTML = `
+                <div class="selected-flag">${selectedFlag}</div>
+                ${statusBadges.length > 0 ? `<div style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">${statusBadges.join('')}</div>` : ''}
+                
+                <div class="relation-section">
+                    <div class="relation-title implies">
+                        <span class="arrow">→</span>
+                        All implied flags (${allImplied.length})
+                    </div>
+                    ${allImplied.length > 0 ? `
+                        <div class="relation-list">
+                            ${allImplied.map(f => `
+                                <span class="relation-tag implies-tag ${directImplies.has(f) ? 'direct' : ''}" 
+                                      onclick="selectFlag('${f}')"
+                                      title="${directImplies.has(f) ? 'Direct implication' : 'Transitive implication'}">${f}</span>
+                            `).join('')}
+                        </div>
+                    ` : '<p class="no-relations">None</p>'}
+                </div>
+
+                <div class="relation-section">
+                    <div class="relation-title implied-by">
+                        <span class="arrow">←</span>
+                        Implied by (${allImpliedBy.length})
+                    </div>
+                    ${allImpliedBy.length > 0 ? `
+                        <div class="relation-list">
+                            ${allImpliedBy.map(f => `
+                                <span class="relation-tag implied-by-tag ${directImpliedBy.has(f) ? 'direct' : ''}" 
+                                      onclick="selectFlag('${f}')"
+                                      title="${directImpliedBy.has(f) ? 'Direct implication' : 'Transitive implication'}">${f}</span>
+                            `).join('')}
+                        </div>
+                    ` : '<p class="no-relations">None</p>'}
+                </div>
+            `;
+        }
+
+        // Search functionality
+        document.getElementById('search').addEventListener('input', (e) => {
+            renderFlagsList(e.target.value);
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '/' && document.activeElement !== document.getElementById('search')) {
+                e.preventDefault();
+                document.getElementById('search').focus();
+            }
+        });
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+</html>

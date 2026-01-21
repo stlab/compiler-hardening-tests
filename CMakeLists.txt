@@ -54,20 +54,26 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
         -O2 -Wall -Wformat -Wformat=2 -Wconversion -Wimplicit-fallthrough
         -Werror=format-security
         -pedantic-errors
-        -fstack-clash-protection -fstack-protector-strong
-        -Wl,-z,nodlopen -Wl,-z,noexecstack
-        -Wl,-z,relro -Wl,-z,now
-        -Wl,--as-needed -Wl,--no-copy-dt-needed-entries
+        -fstack-protector-strong
+
+        -Wextra
+        -Wsign-conversion
+
+        -fPIE -pie
+
+        -fno-delete-null-pointer-checks -fno-strict-overflow -fno-strict-aliasing -ftrivial-auto-var-init=zero
     )
     
     # Architecture-specific options for Apple Clang
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
         target_compile_options(hardening-test PRIVATE
             # x86-64 specific hardening for Apple Clang
+            -fcf-protection=full
         )
     elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
         target_compile_options(hardening-test PRIVATE
             # ARM64 specific hardening for Apple Clang
+            -mbranch-protection=standard
         )
     endif()
 

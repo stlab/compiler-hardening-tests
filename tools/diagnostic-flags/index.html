@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,7 +36,7 @@
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
-            background-image: 
+            background-image:
                 radial-gradient(ellipse at 20% 0%, rgba(88, 166, 255, 0.08) 0%, transparent 50%),
                 radial-gradient(ellipse at 80% 100%, rgba(163, 113, 247, 0.08) 0%, transparent 50%);
         }
@@ -414,7 +415,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .error-message {
@@ -462,6 +465,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -471,13 +475,8 @@
 
         <div class="search-container">
             <span class="search-icon">⌕</span>
-            <input 
-                type="text" 
-                class="search-input" 
-                id="search" 
-                placeholder="Search flags... (e.g., -Wall, -Wextra, -Wconversion)"
-                autocomplete="off"
-            >
+            <input type="text" class="search-input" id="search"
+                placeholder="Search flags... (e.g., -Wall, -Wextra, -Wconversion)" autocomplete="off">
         </div>
 
         <div class="stats" id="stats">
@@ -490,7 +489,8 @@
                     <h2 class="panel-title">
                         <span class="panel-title-icon">📋</span>
                         Diagnostic Flags
-                        <span id="visible-count" style="color: var(--text-muted); font-weight: 400; margin-left: auto;"></span>
+                        <span id="visible-count"
+                            style="color: var(--text-muted); font-weight: 400; margin-left: auto;"></span>
                     </h2>
                 </div>
                 <div class="panel-content" id="flags-list-container">
@@ -520,30 +520,21 @@
         <!-- Comments Section (giscus) -->
         <div class="comments-section">
             <h2 class="comments-header">💬 Feedback & Discussion</h2>
-            <script src="https://giscus.app/client.js"
-                    data-repo="stlab/compiler-hardening-tests"
-                    data-repo-id=""
-                    data-category="General"
-                    data-category-id=""
-                    data-mapping="pathname"
-                    data-strict="0"
-                    data-reactions-enabled="1"
-                    data-emit-metadata="0"
-                    data-input-position="top"
-                    data-theme="dark_dimmed"
-                    data-lang="en"
-                    data-loading="lazy"
-                    crossorigin="anonymous"
-                    async>
-            </script>
+            <script src="https://giscus.app/client.js" data-repo="stlab/compiler-hardening-tests"
+                data-repo-id="R_kgDOQ7Ya6w" data-category="General" data-category-id="DIC_kwDOQ7Ya684C1NsJ"
+                data-mapping="title" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0"
+                data-input-position="bottom" data-theme="dark" data-lang="en" crossorigin="anonymous" async>
+                </script>
         </div>
 
         <footer>
             <p>
-                Data source: <a href="https://clang.llvm.org/docs/DiagnosticsReference.html" target="_blank">Clang Diagnostics Reference</a>
+                Data source: <a href="https://clang.llvm.org/docs/DiagnosticsReference.html" target="_blank">Clang
+                    Diagnostics Reference</a>
             </p>
             <p style="margin-top: 0.5rem;">
-                Part of <a href="https://github.com/stlab/compiler-hardening-tests" target="_blank">stlab/compiler-hardening-tests</a>
+                Part of <a href="https://github.com/stlab/compiler-hardening-tests"
+                    target="_blank">stlab/compiler-hardening-tests</a>
             </p>
         </footer>
     </div>
@@ -612,7 +603,7 @@
                 .filter(([name, _]) => name.toLowerCase().includes(filterLower))
                 .sort((a, b) => a[0].localeCompare(b[0]));
 
-            document.getElementById('visible-count').textContent = 
+            document.getElementById('visible-count').textContent =
                 filter ? `${matchingFlags.length} of ${Object.keys(flags).length}` : '';
 
             if (matchingFlags.length === 0) {
@@ -627,9 +618,9 @@
             const html = `
                 <ul class="flag-list">
                     ${matchingFlags.map(([name, data]) => {
-                        // Count total implied flags (transitive)
-                        const impliesCount = (data.implies_transitive || data.implies || []).length;
-                        return `
+                // Count total implied flags (transitive)
+                const impliesCount = (data.implies_transitive || data.implies || []).length;
+                return `
                             <li class="flag-item ${selectedFlag === name ? 'selected' : ''}" 
                                 data-flag="${name}"
                                 onclick="selectFlag('${name}')">
@@ -642,7 +633,7 @@
                                 </span>
                             </li>
                         `;
-                    }).join('')}
+            }).join('')}
                 </ul>
             `;
 
@@ -667,22 +658,22 @@
 
         function selectFlag(flagName, updateHistory = true) {
             selectedFlag = flagName;
-            
+
             // Update URL hash for bookmarking and back/forward navigation
             if (updateHistory && flagName) {
                 history.pushState({ flag: flagName }, '', `#${encodeURIComponent(flagName)}`);
             }
-            
+
             renderFlagsList(document.getElementById('search').value);
             renderDetail();
-            
+
             // Scroll the selected flag into view in the list
             const selectedElement = document.querySelector(`.flag-item[data-flag="${flagName}"]`);
             if (selectedElement) {
                 selectedElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
         }
-        
+
         function selectFlagFromHash() {
             const hash = decodeURIComponent(window.location.hash.slice(1));
             if (hash && diagnosticsData && diagnosticsData.flags[hash]) {
@@ -720,11 +711,11 @@
             }
 
             const flag = diagnosticsData.flags[selectedFlag];
-            
+
             // Always show complete transitive list, sorted alphabetically
             const allImplied = (flag.implies_transitive || []).slice().sort();
             const directImplies = new Set(flag.implies || []);
-            
+
             // Compute transitive implied_by
             const allImpliedBy = Array.from(getAllImpliedBy(selectedFlag)).sort();
             const directImpliedBy = new Set(flag.implied_by || []);
@@ -815,4 +806,5 @@
         });
     </script>
 </body>
+
 </html>

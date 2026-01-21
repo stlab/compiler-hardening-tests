@@ -463,6 +463,587 @@
             align-items: center;
             gap: 0.5rem;
         }
+
+        /* Paste Input Box Styles */
+        .paste-container {
+            max-width: 800px;
+            margin: 1.5rem auto;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .paste-header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s ease;
+        }
+
+        .paste-header:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .paste-icon {
+            font-size: 1.2rem;
+        }
+
+        .paste-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .paste-toggle {
+            color: var(--text-muted);
+            transition: transform 0.2s ease;
+        }
+
+        .paste-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .paste-content {
+            padding: 1rem 1.5rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+        }
+
+        .paste-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+            padding: 0 1.5rem;
+            overflow: hidden;
+        }
+
+        .paste-input {
+            width: 100%;
+            padding: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .paste-input:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .paste-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .paste-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .paste-feedback {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .paste-feedback.error {
+            color: var(--accent-red);
+        }
+
+        .paste-feedback.success {
+            color: var(--accent-green);
+        }
+
+        /* Button Styles */
+        .btn-primary,
+        .btn-secondary,
+        .btn-clear {
+            padding: 0.6rem 1.2rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            background: #4a94e6;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-blue);
+        }
+
+        .btn-clear {
+            background: transparent;
+            color: var(--accent-red);
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-clear:hover {
+            background: rgba(248, 81, 73, 0.1);
+        }
+
+        /* Basket Styles */
+        .basket-container {
+            max-width: 1400px;
+            margin: 1.5rem auto;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .basket-header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .basket-icon {
+            font-size: 1.2rem;
+        }
+
+        .basket-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .basket-count {
+            background: var(--accent-blue);
+            color: var(--bg-primary);
+            padding: 0.25rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .basket-content {
+            padding: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            min-height: 60px;
+            align-items: flex-start;
+        }
+
+        .basket-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent-green);
+            transition: all 0.15s ease;
+        }
+
+        .basket-chip:hover {
+            background: var(--bg-hover);
+            border-color: var(--accent-blue);
+        }
+
+        .basket-chip-remove {
+            background: none;
+            border: none;
+            color: var(--accent-red);
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0;
+            line-height: 1;
+            opacity: 0.7;
+            transition: opacity 0.15s ease;
+        }
+
+        .basket-chip-remove:hover {
+            opacity: 1;
+        }
+
+        /* Redundancy Analysis Styles */
+        .redundancy-panel {
+            max-width: 1400px;
+            margin: 2rem auto;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .redundancy-content {
+            padding: 1.5rem;
+        }
+
+        .redundancy-stats {
+            text-align: center;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        .redundancy-stats strong {
+            color: var(--accent-blue);
+            font-weight: 600;
+        }
+
+        .redundancy-stats .reduction {
+            color: var(--accent-green);
+        }
+
+        .redundancy-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .redundancy-comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .redundancy-column {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .redundancy-column-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .redundancy-column-title.minimal {
+            color: var(--accent-green);
+        }
+
+        .redundancy-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .redundancy-flag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            transition: all 0.15s ease;
+        }
+
+        .redundancy-flag.kept {
+            border-color: var(--accent-green);
+            background: rgba(63, 185, 80, 0.05);
+        }
+
+        .redundancy-flag.redundant {
+            border-color: var(--accent-red);
+            background: rgba(248, 81, 73, 0.05);
+            opacity: 0.7;
+        }
+
+        .redundancy-flag-name {
+            color: var(--accent-green);
+        }
+
+        .redundancy-flag.redundant .redundancy-flag-name {
+            text-decoration: line-through;
+            color: var(--accent-red);
+        }
+
+        .redundancy-flag-status {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .redundancy-flag-status.kept {
+            background: rgba(63, 185, 80, 0.2);
+            color: var(--accent-green);
+        }
+
+        .redundancy-flag-status.redundant {
+            background: rgba(248, 81, 73, 0.2);
+            color: var(--accent-red);
+        }
+
+        .redundancy-flag-reason {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-style: italic;
+            margin-top: 0.25rem;
+        }
+
+        .redundancy-actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .add-to-basket-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0.25rem;
+            opacity: 0.6;
+            transition: all 0.15s ease;
+            color: var(--accent-blue);
+        }
+
+        .add-to-basket-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .add-to-basket-btn.in-basket {
+            color: var(--accent-green);
+            opacity: 1;
+        }
+
+        /* Help Overlay Styles */
+        .help-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(13, 17, 23, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .help-overlay.active {
+            display: flex;
+        }
+
+        .help-content {
+            max-width: 900px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .help-header {
+            padding: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .help-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .help-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            line-height: 1;
+            transition: color 0.15s ease;
+        }
+
+        .help-close:hover {
+            color: var(--text-primary);
+        }
+
+        .help-body {
+            padding: 2rem;
+        }
+
+        .help-section {
+            margin-bottom: 2rem;
+        }
+
+        .help-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .help-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent-blue);
+            margin-bottom: 1rem;
+        }
+
+        .help-text {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .help-legend {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .help-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .help-legend-icon {
+            font-size: 1.2rem;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .help-legend-description {
+            flex: 1;
+        }
+
+        .help-legend-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .help-legend-text {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .help-example {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .help-example-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .help-example-content {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent-green);
+        }
+
+        .help-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 56px;
+            height: 56px;
+            background: var(--accent-blue);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(88, 166, 255, 0.4);
+            transition: all 0.2s ease;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .help-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(88, 166, 255, 0.6);
+        }
+
+        @media (max-width: 900px) {
+            .help-button {
+                bottom: 1rem;
+                right: 1rem;
+                width: 48px;
+                height: 48px;
+                font-size: 1.2rem;
+            }
+        }
+
+        .help-kbd {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
     </style>
 </head>
 
@@ -483,8 +1064,65 @@
                 placeholder="Search flags... (e.g., -Wall, -Wextra, -Wconversion)" autocomplete="off">
         </div>
 
+        <!-- Flag Paste Input Box -->
+        <div class="paste-container" id="paste-container">
+            <div class="paste-header" onclick="togglePasteBox()">
+                <span class="paste-icon">📋</span>
+                <span class="paste-title">Import Compilation Flags</span>
+                <span class="paste-toggle" id="paste-toggle">▼</span>
+            </div>
+            <div class="paste-content" id="paste-content">
+                <textarea class="paste-input" id="paste-input"
+                    placeholder="Paste your compilation flags here... (e.g., -Wall -Wextra -Waddress -Wstring-compare)"
+                    rows="3"></textarea>
+                <div class="paste-actions">
+                    <button class="btn-primary" onclick="importFlags()">Select Flags</button>
+                    <span class="paste-feedback" id="paste-feedback"></span>
+                </div>
+            </div>
+        </div>
+
         <div class="stats" id="stats">
             <!-- Populated by JS -->
+        </div>
+
+        <!-- Selection Basket -->
+        <div class="basket-container" id="basket-container" style="display: none;">
+            <div class="basket-header">
+                <span class="basket-icon">🧺</span>
+                <span class="basket-title">Selected Flags</span>
+                <span class="basket-count" id="basket-count">0</span>
+                <button class="btn-clear" onclick="clearBasket()">Clear All</button>
+            </div>
+            <div class="basket-content" id="basket-content">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Redundancy Analysis Panel (appears when basket has 2+ flags) -->
+        <div class="redundancy-panel" id="redundancy-panel" style="display: none;">
+            <div class="panel-header">
+                <h2 class="panel-title">
+                    <span class="panel-title-icon">🔬</span>
+                    Redundancy Analysis
+                </h2>
+            </div>
+            <div class="redundancy-content">
+                <div class="redundancy-stats" id="redundancy-stats"></div>
+                <div class="redundancy-comparison">
+                    <div class="redundancy-column">
+                        <h3 class="redundancy-column-title">Your Flags</h3>
+                        <div class="redundancy-list" id="redundancy-your-flags"></div>
+                    </div>
+                    <div class="redundancy-column">
+                        <h3 class="redundancy-column-title minimal">Minimal Equivalent Set</h3>
+                        <div class="redundancy-list" id="redundancy-minimal-flags"></div>
+                        <div class="redundancy-actions">
+                            <button class="btn-secondary" onclick="copyMinimalSet()">Copy Minimal Set</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="main-content">
@@ -543,9 +1181,153 @@
         </footer>
     </div>
 
+    <!-- Help Button -->
+    <button class="help-button" onclick="toggleHelp()" title="Help & Instructions">?</button>
+
+    <!-- Help Overlay -->
+    <div class="help-overlay" id="help-overlay" onclick="closeHelpOnBackdrop(event)">
+        <div class="help-content">
+            <div class="help-header">
+                <h2 class="help-title">📖 Help & Instructions</h2>
+                <button class="help-close" onclick="toggleHelp()">×</button>
+            </div>
+            <div class="help-body">
+                <div class="help-section">
+                    <h3 class="help-section-title">Overview</h3>
+                    <p class="help-text">
+                        This tool helps you explore Clang diagnostic (warning) flags and their relationships.
+                        It shows which flags imply other flags, helping you optimize your compilation settings
+                        by removing redundant warnings.
+                    </p>
+                </div>
+
+                <div class="help-section">
+                    <h3 class="help-section-title">Legend - Flag Badges</h3>
+                    <div class="help-legend">
+                        <div class="help-legend-item">
+                            <div class="help-legend-icon"><span class="badge badge-error">Error</span></div>
+                            <div class="help-legend-description">
+                                <div class="help-legend-label">Error</div>
+                                <div class="help-legend-text">This diagnostic is treated as an error by default</div>
+                            </div>
+                        </div>
+                        <div class="help-legend-item">
+                            <div class="help-legend-icon"><span class="badge badge-default">Default</span></div>
+                            <div class="help-legend-description">
+                                <div class="help-legend-label">Default</div>
+                                <div class="help-legend-text">This flag is enabled by default in Clang</div>
+                            </div>
+                        </div>
+                        <div class="help-legend-item">
+                            <div class="help-legend-icon"><span class="badge badge-some-default">Partial</span></div>
+                            <div class="help-legend-description">
+                                <div class="help-legend-label">Partial</div>
+                                <div class="help-legend-text">Some sub-flags of this warning group are enabled by
+                                    default</div>
+                            </div>
+                        </div>
+                        <div class="help-legend-item">
+                            <div class="help-legend-icon"><span class="badge badge-count">→5</span></div>
+                            <div class="help-legend-description">
+                                <div class="help-legend-label">Implication Count</div>
+                                <div class="help-legend-text">Number of flags implied by this flag (including
+                                    transitive)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3 class="help-section-title">How to Use</h3>
+
+                    <p class="help-text"><strong>Browse and Search:</strong></p>
+                    <ul
+                        style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 1rem; margin-left: 1.5rem;">
+                        <li>Use the search box to filter flags by name</li>
+                        <li>Click any flag to see its relationships and documentation</li>
+                        <li>Press <span class="help-kbd">/</span> to focus the search box</li>
+                    </ul>
+
+                    <p class="help-text"><strong>Add Flags to Basket:</strong></p>
+                    <ul
+                        style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 1rem; margin-left: 1.5rem;">
+                        <li>Click the <strong>+</strong> button next to any flag to add it to your basket</li>
+                        <li>The button changes to <strong>✓</strong> when the flag is in the basket</li>
+                        <li>Click <strong>✓</strong> again to remove the flag from the basket</li>
+                    </ul>
+
+                    <p class="help-text"><strong>Import Multiple Flags:</strong></p>
+                    <ul
+                        style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 1rem; margin-left: 1.5rem;">
+                        <li>Click "Import Compilation Flags" to expand the paste box</li>
+                        <li>Paste your compilation flags in any format</li>
+                        <li>Click "Select Flags" to add all valid flags to the basket</li>
+                    </ul>
+                    <div class="help-example">
+                        <div class="help-example-title">Supported formats:</div>
+                        <div class="help-example-content">
+                            -Wall -Wextra -Waddress<br>
+                            Wall, Wextra, address<br>
+                            -Wall<br>
+                            -Wextra<br>
+                            -Waddress
+                        </div>
+                    </div>
+
+                    <p class="help-text" style="margin-top: 1.5rem;"><strong>Analyze Redundancy:</strong></p>
+                    <ul
+                        style="color: var(--text-secondary); line-height: 1.8; margin-bottom: 1rem; margin-left: 1.5rem;">
+                        <li>Once you have 2+ flags in the basket, the Redundancy Analysis panel appears</li>
+                        <li>The left column shows all your selected flags</li>
+                        <li>The right column shows the minimal equivalent set</li>
+                        <li>Redundant flags are marked with strikethrough and show which flag implies them</li>
+                        <li>Click "Copy Minimal Set" to copy the optimized flag list</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <h3 class="help-section-title">Understanding Flag Relationships</h3>
+                    <p class="help-text">
+                        <strong>Implies (→):</strong> When you enable a flag like <code
+                            style="color: var(--accent-green);">-Wall</code>,
+                        it automatically enables many other flags. These are shown in the "All implied flags" section.
+                    </p>
+                    <p class="help-text">
+                        <strong>Implied by (←):</strong> Shows which other flags would enable this flag if they were
+                        used.
+                    </p>
+                    <p class="help-text">
+                        <strong>Direct vs Transitive:</strong> Flags with a thicker border are directly implied.
+                        Others are transitively implied (implied by an implied flag).
+                    </p>
+                    <div class="help-example">
+                        <div class="help-example-title">Example:</div>
+                        <div class="help-example-content">
+                            If you select -Waddress and -Wstring-compare:<br>
+                            • -Wstring-compare is redundant (implied by -Waddress)<br>
+                            • Minimal set: -Waddress
+                        </div>
+                    </div>
+                </div>
+
+                <div class="help-section">
+                    <h3 class="help-section-title">Tips</h3>
+                    <ul style="color: var(--text-secondary); line-height: 1.8; margin-left: 1.5rem;">
+                        <li>Use the redundancy analysis to optimize your build configuration</li>
+                        <li>Click flag names in the analysis to see their details</li>
+                        <li>Share links to specific flags by clicking the 🔗 icon in the detail view</li>
+                        <li>The basket persists while you browse, so you can build your selection gradually</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let diagnosticsData = null;
         let selectedFlag = null;
+        let basketFlags = new Set();
+        let pasteBoxCollapsed = false;
 
         // Load the diagnostics data
         async function loadData() {
@@ -624,11 +1406,16 @@
                     ${matchingFlags.map(([name, data]) => {
                 // Count total implied flags (transitive)
                 const impliesCount = (data.implies_transitive || data.implies || []).length;
+                const inBasket = basketFlags.has(name);
                 return `
                             <li class="flag-item ${selectedFlag === name ? 'selected' : ''}" 
-                                data-flag="${name}"
-                                onclick="selectFlag('${name}')">
-                                <span class="flag-name">${name}</span>
+                                data-flag="${name}">
+                                <button class="add-to-basket-btn ${inBasket ? 'in-basket' : ''}" 
+                                    onclick="event.stopPropagation(); ${inBasket ? `removeFromBasket('${name}')` : `addToBasket('${name}')`}"
+                                    title="${inBasket ? 'Remove from basket' : 'Add to basket'}">
+                                    ${inBasket ? '✓' : '+'}
+                                </button>
+                                <span class="flag-name" onclick="selectFlag('${name}')" style="cursor: pointer; flex: 1;">${name}</span>
                                 <span class="flag-badges">
                                     ${data.is_error ? '<span class="badge badge-error">Error</span>' : ''}
                                     ${data.is_default ? '<span class="badge badge-default">Default</span>' : ''}
@@ -800,6 +1587,337 @@
             } else {
                 // No state means we're back to the initial page
                 selectFlagFromHash();
+            }
+        });
+
+        // Copy minimal set to clipboard
+        async function copyMinimalSet() {
+            const selectedFlags = Array.from(basketFlags).sort();
+            const analysis = analyzeRedundancy(selectedFlags);
+            const text = analysis.minimal.join(' ');
+
+            try {
+                await navigator.clipboard.writeText(text);
+                showCopyFeedback('Minimal set copied!');
+            } catch (err) {
+                console.error('Failed to copy:', err);
+                showCopyFeedback('Failed to copy', true);
+            }
+        }
+
+        // Show copy feedback
+        function showCopyFeedback(message, isError = false) {
+            const stats = document.getElementById('redundancy-stats');
+            const originalHTML = stats.innerHTML;
+
+            stats.innerHTML = `<span style="color: ${isError ? 'var(--accent-red)' : 'var(--accent-green)'};">${message}</span>`;
+
+            setTimeout(() => {
+                stats.innerHTML = originalHTML;
+            }, 2000);
+        }
+
+        // Toggle paste box collapse/expand
+        function togglePasteBox() {
+            pasteBoxCollapsed = !pasteBoxCollapsed;
+            const content = document.getElementById('paste-content');
+            const toggle = document.getElementById('paste-toggle');
+
+            if (pasteBoxCollapsed) {
+                content.classList.add('collapsed');
+                toggle.classList.add('collapsed');
+            } else {
+                content.classList.remove('collapsed');
+                toggle.classList.remove('collapsed');
+            }
+        }
+
+        // Parse flags from pasted text
+        function parseFlags(text) {
+            if (!text || !text.trim()) {
+                return { flags: [], errors: [] };
+            }
+
+            // Split by spaces, commas, newlines, and tabs
+            const tokens = text.split(/[\s,\n\t]+/).filter(t => t.trim());
+            const flags = [];
+            const errors = [];
+
+            for (const token of tokens) {
+                let flagName = token.trim();
+
+                // Skip empty tokens
+                if (!flagName) continue;
+
+                // Ensure it starts with -W
+                if (!flagName.startsWith('-W')) {
+                    // Try to fix common issues
+                    if (flagName.startsWith('W')) {
+                        flagName = '-' + flagName;
+                    } else if (flagName.startsWith('-') && !flagName.startsWith('-W')) {
+                        // Skip non-warning flags like -O2, -g, etc.
+                        continue;
+                    } else {
+                        flagName = '-W' + flagName;
+                    }
+                }
+
+                // Check if flag exists in diagnostics data
+                if (diagnosticsData && diagnosticsData.flags[flagName]) {
+                    flags.push(flagName);
+                } else {
+                    // Try to find similar flags
+                    const similar = findSimilarFlags(flagName);
+                    errors.push({ flag: token, similar });
+                }
+            }
+
+            return { flags: [...new Set(flags)], errors }; // Remove duplicates
+        }
+
+        // Find similar flag names (simple Levenshtein-like matching)
+        function findSimilarFlags(flagName) {
+            if (!diagnosticsData) return [];
+
+            const allFlags = Object.keys(diagnosticsData.flags);
+            const similar = [];
+
+            for (const flag of allFlags) {
+                // Simple similarity: check if the flag contains the search term or vice versa
+                const searchLower = flagName.toLowerCase().replace(/^-w/, '');
+                const flagLower = flag.toLowerCase().replace(/^-w/, '');
+
+                if (flagLower.includes(searchLower) || searchLower.includes(flagLower)) {
+                    similar.push(flag);
+                    if (similar.length >= 3) break; // Limit suggestions
+                }
+            }
+
+            return similar;
+        }
+
+        // Add flag to basket
+        function addToBasket(flagName) {
+            if (!diagnosticsData.flags[flagName]) return;
+
+            basketFlags.add(flagName);
+            renderBasket();
+            renderRedundancyAnalysis();
+            renderFlagsList(document.getElementById('search').value);
+        }
+
+        // Remove flag from basket
+        function removeFromBasket(flagName) {
+            basketFlags.delete(flagName);
+            renderBasket();
+            renderRedundancyAnalysis();
+            renderFlagsList(document.getElementById('search').value);
+        }
+
+        // Clear all flags from basket
+        function clearBasket() {
+            basketFlags.clear();
+            renderBasket();
+            renderRedundancyAnalysis();
+            renderFlagsList(document.getElementById('search').value);
+        }
+
+        // Render basket UI
+        function renderBasket() {
+            const container = document.getElementById('basket-container');
+            const content = document.getElementById('basket-content');
+            const count = document.getElementById('basket-count');
+
+            if (basketFlags.size === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.style.display = 'block';
+            count.textContent = basketFlags.size;
+
+            const sortedFlags = Array.from(basketFlags).sort();
+            content.innerHTML = sortedFlags.map(flag => `
+                <div class="basket-chip">
+                    <span>${flag}</span>
+                    <button class="basket-chip-remove" onclick="removeFromBasket('${flag}')" title="Remove from basket">×</button>
+                </div>
+            `).join('');
+        }
+
+        // Analyze redundancy in selected flags
+        function analyzeRedundancy(selectedFlags) {
+            const redundant = new Set();
+            const implications = new Map(); // flag -> Set of flags that imply it
+
+            // For each selected flag
+            for (const flag of selectedFlags) {
+                const flagData = diagnosticsData.flags[flag];
+                if (!flagData) continue;
+
+                // Check if this flag is implied by any other selected flag
+                for (const otherFlag of selectedFlags) {
+                    if (flag !== otherFlag) {
+                        const otherData = diagnosticsData.flags[otherFlag];
+                        if (!otherData) continue;
+
+                        const otherImplies = otherData.implies_transitive || [];
+                        if (otherImplies.includes(flag)) {
+                            redundant.add(flag);
+                            if (!implications.has(flag)) {
+                                implications.set(flag, new Set());
+                            }
+                            implications.get(flag).add(otherFlag);
+                        }
+                    }
+                }
+            }
+
+            return {
+                redundant: Array.from(redundant),
+                minimal: selectedFlags.filter(f => !redundant.has(f)),
+                implications // for showing "why" it's redundant
+            };
+        }
+
+        // Render redundancy analysis
+        function renderRedundancyAnalysis() {
+            const panel = document.getElementById('redundancy-panel');
+
+            if (basketFlags.size < 2) {
+                panel.style.display = 'none';
+                return;
+            }
+
+            panel.style.display = 'block';
+
+            const selectedFlags = Array.from(basketFlags).sort();
+            const analysis = analyzeRedundancy(selectedFlags);
+
+            // Render stats
+            const stats = document.getElementById('redundancy-stats');
+            const reductionPercent = selectedFlags.length > 0
+                ? Math.round((analysis.redundant.length / selectedFlags.length) * 100)
+                : 0;
+
+            stats.innerHTML = `
+                <strong>${selectedFlags.length}</strong> flags → 
+                <strong class="reduction">${analysis.minimal.length}</strong> minimal 
+                ${analysis.redundant.length > 0
+                    ? `(<strong>${analysis.redundant.length}</strong> redundant, <span class="reduction">${reductionPercent}% reduction</span>)`
+                    : '(no redundancy detected)'}
+            `;
+
+            // Render "Your Flags" column
+            const yourFlags = document.getElementById('redundancy-your-flags');
+            yourFlags.innerHTML = selectedFlags.map(flag => {
+                const isRedundant = analysis.redundant.includes(flag);
+                const impliedBy = isRedundant ? Array.from(analysis.implications.get(flag)) : [];
+
+                return `
+                    <div class="redundancy-flag ${isRedundant ? 'redundant' : 'kept'}">
+                        <div style="flex: 1;">
+                            <div class="redundancy-flag-name">${flag}</div>
+                            ${isRedundant ? `<div class="redundancy-flag-reason">Implied by: ${impliedBy.join(', ')}</div>` : ''}
+                        </div>
+                        ${isRedundant ? `<span class="redundancy-flag-status redundant">Redundant</span>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            // Render "Minimal Set" column
+            const minimalFlags = document.getElementById('redundancy-minimal-flags');
+            minimalFlags.innerHTML = analysis.minimal.map(flag => `
+                <div class="redundancy-flag kept">
+                    <div class="redundancy-flag-name">${flag}</div>
+                </div>
+            `).join('');
+        }
+
+        // Import flags from paste box
+        function importFlags() {
+            const input = document.getElementById('paste-input');
+            const feedback = document.getElementById('paste-feedback');
+            const text = input.value;
+
+            if (!text.trim()) {
+                feedback.textContent = 'Please paste some flags first';
+                feedback.className = 'paste-feedback error';
+                return;
+            }
+
+            const { flags, errors } = parseFlags(text);
+
+            if (flags.length === 0 && errors.length === 0) {
+                feedback.textContent = 'No valid warning flags found';
+                feedback.className = 'paste-feedback error';
+                return;
+            }
+
+            // Add flags to basket
+            let addedCount = 0;
+            for (const flag of flags) {
+                if (!basketFlags.has(flag)) {
+                    basketFlags.add(flag);
+                    addedCount++;
+                }
+            }
+
+            // Show feedback
+            let message = '';
+            if (addedCount > 0) {
+                message = `Added ${addedCount} flag${addedCount > 1 ? 's' : ''} to basket`;
+            } else {
+                message = 'All flags already in basket';
+            }
+
+            if (errors.length > 0) {
+                message += ` (${errors.length} unrecognized)`;
+                feedback.className = 'paste-feedback error';
+            } else {
+                feedback.className = 'paste-feedback success';
+            }
+
+            feedback.textContent = message;
+
+            // Clear input and update UI
+            input.value = '';
+            renderBasket();
+            renderRedundancyAnalysis();
+
+            // Clear feedback after 3 seconds
+            setTimeout(() => {
+                feedback.textContent = '';
+            }, 3000);
+        }
+
+        // Toggle help overlay
+        function toggleHelp() {
+            const overlay = document.getElementById('help-overlay');
+            overlay.classList.toggle('active');
+
+            // Prevent body scroll when overlay is open
+            if (overlay.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close help when clicking the backdrop (but not the content)
+        function closeHelpOnBackdrop(event) {
+            if (event.target === document.getElementById('help-overlay')) {
+                toggleHelp();
+            }
+        }
+
+        // Close help with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const overlay = document.getElementById('help-overlay');
+                if (overlay.classList.contains('active')) {
+                    toggleHelp();
+                }
             }
         });
 

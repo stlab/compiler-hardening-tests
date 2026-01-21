@@ -442,6 +442,24 @@
         footer a:hover {
             text-decoration: underline;
         }
+
+        .comments-section {
+            margin-top: 3rem;
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+        }
+
+        .comments-header {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -499,12 +517,33 @@
             </div>
         </div>
 
+        <!-- Comments Section (giscus) -->
+        <div class="comments-section">
+            <h2 class="comments-header">💬 Feedback & Discussion</h2>
+            <script src="https://giscus.app/client.js"
+                    data-repo="stlab/compiler-hardening-tests"
+                    data-repo-id=""
+                    data-category="General"
+                    data-category-id=""
+                    data-mapping="pathname"
+                    data-strict="0"
+                    data-reactions-enabled="1"
+                    data-emit-metadata="0"
+                    data-input-position="top"
+                    data-theme="dark_dimmed"
+                    data-lang="en"
+                    data-loading="lazy"
+                    crossorigin="anonymous"
+                    async>
+            </script>
+        </div>
+
         <footer>
             <p>
                 Data source: <a href="https://clang.llvm.org/docs/DiagnosticsReference.html" target="_blank">Clang Diagnostics Reference</a>
             </p>
             <p style="margin-top: 0.5rem;">
-                Run <code>python parse_diagnostics.py</code> to refresh the data
+                Part of <a href="https://github.com/stlab/compiler-hardening-tests" target="_blank">stlab/compiler-hardening-tests</a>
             </p>
         </footer>
     </div>

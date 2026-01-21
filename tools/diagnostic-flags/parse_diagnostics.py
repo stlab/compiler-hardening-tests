@@ -53,7 +53,8 @@ class DiagnosticsParser(HTMLParser):
             heading_text = self.text_buffer.strip()
 
             # Extract flag name from heading (format: "-Wflag-name¶")
-            match = re.match(r'^(-W[a-zA-Z0-9+\-_#]+)', heading_text)
+            # Include = for flags like -Wformat=2
+            match = re.match(r'^(-W[a-zA-Z0-9+\-_#=]+)', heading_text)
             if match:
                 flag_name = match.group(1)
                 self.current_flag = flag_name
@@ -82,13 +83,13 @@ class DiagnosticsParser(HTMLParser):
                 )
                 if controls_match:
                     controlled_flags_str = controls_match.group(1)
-                    controlled_flags = re.findall(r'-W[a-zA-Z0-9+\-_#]+', controlled_flags_str)
+                    controlled_flags = re.findall(r'-W[a-zA-Z0-9+\-_#=]+', controlled_flags_str)
                     for controlled in controlled_flags:
                         if controlled not in self.flags[self.current_flag]['implies']:
                             self.flags[self.current_flag]['implies'].append(controlled)
 
                 # Check for "Synonym for" pattern
-                synonym_match = re.search(r'Synonym for\s+\\?(-W[a-zA-Z0-9+\-_#]+)', para_text)
+                synonym_match = re.search(r'Synonym for\s+\\?(-W[a-zA-Z0-9+\-_#=]+)', para_text)
                 if synonym_match:
                     synonym_flag = synonym_match.group(1)
                     if synonym_flag not in self.flags[self.current_flag]['implies']:

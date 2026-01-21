@@ -287,6 +287,38 @@
             margin-bottom: 1.5rem;
             padding-bottom: 1rem;
             border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .doc-link {
+            font-size: 1.2rem;
+            text-decoration: none;
+            opacity: 0.7;
+            transition: opacity 0.15s ease;
+        }
+
+        .doc-link:hover {
+            opacity: 1;
+        }
+
+        .copy-link-btn {
+            font-size: 1rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.15s ease;
+            padding: 0.25rem;
+        }
+
+        .copy-link-btn:hover {
+            opacity: 1;
+        }
+
+        .copy-link-btn.copied {
+            opacity: 1;
         }
 
         .relation-section {
@@ -594,10 +626,45 @@
             return result;
         }
 
-        function selectFlag(flagName) {
+        function selectFlag(flagName, updateHistory = true) {
             selectedFlag = flagName;
+            
+            // Update URL hash for bookmarking and back/forward navigation
+            if (updateHistory && flagName) {
+                history.pushState({ flag: flagName }, '', `#${encodeURIComponent(flagName)}`);
+            }
+            
             renderFlagsList(document.getElementById('search').value);
             renderDetail();
+            
+            // Scroll the selected flag into view in the list
+            const selectedElement = document.querySelector(`.flag-item[data-flag="${flagName}"]`);
+            if (selectedElement) {
+                selectedElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+        
+        function selectFlagFromHash() {
+            const hash = decodeURIComponent(window.location.hash.slice(1));
+            if (hash && diagnosticsData && diagnosticsData.flags[hash]) {
+                selectFlag(hash, false);
+            }
+        }
+
+        async function copyLink(url) {
+            try {
+                await navigator.clipboard.writeText(url);
+                const btn = document.querySelector('.copy-link-btn');
+                const originalText = btn.textContent;
+                btn.textContent = '✓';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('copied');
+                }, 1500);
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
         }
 
         function renderDetail() {
@@ -629,8 +696,20 @@
             if (flag.is_default) statusBadges.push('<span class="badge badge-default">Enabled by default</span>');
             if (flag.some_default) statusBadges.push('<span class="badge badge-some-default">Some sub-flags enabled by default</span>');
 
+            // Generate documentation URL
+            // -Wsuspicious-memaccess → #wsuspicious-memaccess
+            // -Wformat=2 → #wformat-2 (= becomes -)
+            const anchor = selectedFlag.toLowerCase().replace(/^-/, '').replace(/=/g, '-');
+            const docUrl = `https://clang.llvm.org/docs/DiagnosticsReference.html#${anchor}`;
+
+            const shareUrl = `${window.location.origin}${window.location.pathname}#${encodeURIComponent(selectedFlag)}`;
+
             container.innerHTML = `
-                <div class="selected-flag">${selectedFlag}</div>
+                <div class="selected-flag">
+                    ${selectedFlag}
+                    <a href="${docUrl}" target="_blank" class="doc-link" title="View in Clang documentation">📖</a>
+                    <button class="copy-link-btn" onclick="copyLink('${shareUrl}')" title="Copy link to this flag">🔗</button>
+                </div>
                 ${statusBadges.length > 0 ? `<div style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">${statusBadges.join('')}</div>` : ''}
                 
                 <div class="relation-section">
@@ -680,8 +759,21 @@
             }
         });
 
+        // Handle browser back/forward navigation
+        window.addEventListener('popstate', (e) => {
+            if (e.state && e.state.flag) {
+                selectFlag(e.state.flag, false);
+            } else {
+                // No state means we're back to the initial page
+                selectFlagFromHash();
+            }
+        });
+
         // Initialize
-        loadData();
+        loadData().then(() => {
+            // Check for initial hash in URL
+            selectFlagFromHash();
+        });
     </script>
 </body>
 </html>

@@ -77,7 +77,7 @@ jobs:
         run: cmake --preset=${{ matrix.preset }}
 
       - name: Build
-        run: cmake --build --preset=${{ matrix.preset }}
+        run: cmake --build --preset=${{ matrix.preset }} --verbose
 
       - name: Run
         run: ./build/${{ matrix.preset }}/hardening-test

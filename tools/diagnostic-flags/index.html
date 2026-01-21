@@ -265,6 +265,11 @@
             color: var(--text-secondary);
         }
 
+        .badge-synonym {
+            background: rgba(163, 113, 247, 0.2);
+            color: var(--accent-purple);
+        }
+
         .detail-panel .panel-content {
             padding: 1.5rem;
         }
@@ -1234,6 +1239,13 @@
                                     transitive)</div>
                             </div>
                         </div>
+                        <div class="help-legend-item">
+                            <div class="help-legend-icon"><span class="badge badge-synonym">Synonym</span></div>
+                            <div class="help-legend-description">
+                                <div class="help-legend-label">Synonym</div>
+                                <div class="help-legend-text">This flag is an alias for another flag and inherits all its properties</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1417,6 +1429,7 @@
                                 </button>
                                 <span class="flag-name" onclick="selectFlag('${name}')" style="cursor: pointer; flex: 1;">${name}</span>
                                 <span class="flag-badges">
+                                    ${data.synonym_for ? `<span class="badge badge-synonym" title="Synonym for ${data.synonym_for}">Synonym</span>` : ''}
                                     ${data.is_error ? '<span class="badge badge-error">Error</span>' : ''}
                                     ${data.is_default ? '<span class="badge badge-default">Default</span>' : ''}
                                     ${data.some_default ? '<span class="badge badge-some-default">Partial</span>' : ''}
@@ -1520,7 +1533,8 @@
             // Generate documentation URL
             // -Wsuspicious-memaccess → #wsuspicious-memaccess
             // -Wformat=2 → #wformat-2 (= becomes -)
-            const anchor = selectedFlag.toLowerCase().replace(/^-/, '').replace(/=/g, '-');
+            // -Wc++14-compat → #wc-14-compat (++ becomes -, then collapse -- to -)
+            const anchor = selectedFlag.toLowerCase().replace(/^-/, '').replace(/\+\+/g, '-').replace(/--/g, '-').replace(/=/g, '-');
             const docUrl = `https://clang.llvm.org/docs/DiagnosticsReference.html#${anchor}`;
 
             const shareUrl = `${window.location.origin}${window.location.pathname}#${encodeURIComponent(selectedFlag)}`;
@@ -1531,6 +1545,21 @@
                     <a href="${docUrl}" target="_blank" class="doc-link" title="View in Clang documentation">📖</a>
                     <button class="copy-link-btn" onclick="copyLink('${shareUrl}')" title="Copy link to this flag">🔗</button>
                 </div>
+                ${flag.synonym_for ? `
+                    <div class="relation-section" style="margin-bottom: 1rem; background: rgba(163, 113, 247, 0.1); border-left: 3px solid var(--accent-purple);">
+                        <div class="relation-title" style="color: var(--accent-purple);">
+                            <span>⟳</span>
+                            Synonym for
+                        </div>
+                        <div class="relation-list">
+                            <span class="relation-tag direct" style="background: var(--accent-purple); color: white;" 
+                                  onclick="selectFlag('${flag.synonym_for}')">${flag.synonym_for}</span>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.5rem;">
+                            This flag is an alias and inherits all properties from its canonical form.
+                        </p>
+                    </div>
+                ` : ''}
                 ${statusBadges.length > 0 ? `<div style="margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">${statusBadges.join('')}</div>` : ''}
                 
                 <div class="relation-section">

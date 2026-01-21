@@ -25,6 +25,7 @@ class DiagnosticsParser(HTMLParser):
     def __init__(self):
         super().__init__()
         self.flags = {}  # flag_name -> {implies: [], implied_by: [], description: str}
+        self.synonyms = {}  # synonym_name -> canonical_name
         self.current_flag = None
         self.current_section = None
         self.in_heading = False
@@ -65,7 +66,9 @@ class DiagnosticsParser(HTMLParser):
                         'description': '',
                         'is_error': False,
                         'is_default': False,
-                        'some_default': False
+                        'some_default': False,
+                        'synonym_for': None,
+                        'has_no_effect': False
                     }
 
         if tag == 'p' and self.in_paragraph:
@@ -92,6 +95,9 @@ class DiagnosticsParser(HTMLParser):
                 synonym_match = re.search(r'Synonym for\s+\\?(-W[a-zA-Z0-9+\-_#=]+)', para_text)
                 if synonym_match:
                     synonym_flag = synonym_match.group(1)
+                    # Store this flag as a synonym of the canonical flag
+                    self.synonyms[self.current_flag] = synonym_flag
+                    # Also add to implies for the graph representation
                     if synonym_flag not in self.flags[self.current_flag]['implies']:
                         self.flags[self.current_flag]['implies'].append(synonym_flag)
 
@@ -107,11 +113,56 @@ class DiagnosticsParser(HTMLParser):
                 elif 'Some of the diagnostics controlled by this flag are enabled by default' in para_text:
                     self.flags[self.current_flag]['is_default'] = False
                     self.flags[self.current_flag]['some_default'] = True
+                
+                # Check if the flag has no effect (should be treated as enabled for consistency)
+                if 'has no effect' in para_text.lower() or 'this diagnostic flag exists for gcc compatibility' in para_text.lower():
+                    self.flags[self.current_flag]['has_no_effect'] = True
 
     def handle_data(self, data):
         if self.in_heading or self.in_paragraph:
             self.text_buffer += data
 
+    def resolve_synonym(self, flag_name):
+        """Resolve a flag to its canonical form by following synonym chain."""
+        visited = set()
+        current = flag_name
+        
+        while current in self.synonyms:
+            if current in visited:
+                # Circular synonym - shouldn't happen but handle it
+                break
+            visited.add(current)
+            current = self.synonyms[current]
+        
+        return current
+    
+    def resolve_synonyms_in_flags(self):
+        """Update flag properties to inherit from canonical flags for synonyms."""
+        for flag_name in list(self.flags.keys()):
+            if flag_name in self.synonyms:
+                canonical = self.resolve_synonym(flag_name)
+                
+                # Ensure canonical flag exists
+                if canonical not in self.flags:
+                    self.flags[canonical] = {
+                        'implies': [],
+                        'implied_by': [],
+                        'description': '',
+                        'is_error': False,
+                        'is_default': False,
+                        'some_default': False,
+                        'synonym_for': None,
+                        'has_no_effect': False
+                    }
+                
+                # Copy properties from canonical to synonym
+                # But keep the implies relationship (pointing to canonical)
+                # and add a synonym_for field
+                self.flags[flag_name]['synonym_for'] = canonical
+                self.flags[flag_name]['is_error'] = self.flags[canonical]['is_error']
+                self.flags[flag_name]['is_default'] = self.flags[canonical]['is_default']
+                self.flags[flag_name]['some_default'] = self.flags[canonical]['some_default']
+    
     def build_implied_by(self):
         """Build reverse relationships (implied_by from implies)."""
         for flag_name, flag_data in self.flags.items():
@@ -127,7 +178,9 @@ class DiagnosticsParser(HTMLParser):
                         'description': '',
                         'is_error': False,
                         'is_default': False,
-                        'some_default': False
+                        'some_default': False,
+                        'synonym_for': None,
+                        'has_no_effect': False
                     }
 
 
@@ -192,6 +245,7 @@ def main():
 
     diagnostics_parser = DiagnosticsParser()
     diagnostics_parser.feed(html_content)
+    diagnostics_parser.resolve_synonyms_in_flags()
     diagnostics_parser.build_implied_by()
 
     flags = diagnostics_parser.flags
@@ -209,6 +263,7 @@ def main():
     output = {
         'source_url': args.url,
         'flag_count': len(sorted_flags),
+        'synonym_count': len(diagnostics_parser.synonyms),
         'flags': sorted_flags
     }
 
@@ -217,13 +272,16 @@ def main():
         json.dump(output, f, indent=2)
 
     print(f"Parsed {len(sorted_flags)} diagnostic flags", file=sys.stderr)
+    print(f"Found {len(diagnostics_parser.synonyms)} synonyms", file=sys.stderr)
     print(f"Output written to {args.output}", file=sys.stderr)
 
     # Print some stats
     flags_with_implies = sum(1 for f in flags.values() if f['implies'])
     flags_with_implied_by = sum(1 for f in flags.values() if f['implied_by'])
+    flags_with_synonyms = sum(1 for f in flags.values() if f.get('synonym_for') is not None)
     print(f"Flags that imply others: {flags_with_implies}", file=sys.stderr)
     print(f"Flags implied by others: {flags_with_implied_by}", file=sys.stderr)
+    print(f"Flags that are synonyms: {flags_with_synonyms}", file=sys.stderr)
 
 
 if __name__ == '__main__':

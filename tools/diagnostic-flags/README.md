@@ -9,6 +9,7 @@ An interactive tool to explore relationships between Clang diagnostic (warning) 
 - **Search**: Filter flags by name
 - **Complete implications**: See all flags implied by a given flag (transitive closure)
 - **Reverse lookup**: See which flags imply a given flag
+- **Synonym detection**: Identifies flag aliases and shows their canonical forms
 - **Direct links**: Share links to specific flags (e.g., `#-Wall`)
 - **Documentation links**: Quick access to official Clang documentation
 - **Flag metadata**: See if a flag is enabled by default or treated as an error
@@ -78,3 +79,11 @@ Then open http://localhost:8080 in your browser.
 ## Data Source
 
 Data is parsed from the [Clang Diagnostics Reference](https://clang.llvm.org/docs/DiagnosticsReference.html).
+
+### Synonym Handling
+
+The parser automatically detects flag synonyms (aliases) and ensures they inherit all properties from their canonical forms. For example, `-Wdeprecated-writable-strings` is detected as a synonym for `-Wc++11-compat-deprecated-writable-strings`, and inherits its `is_default`, `some_default`, and `is_error` properties. Synonyms are marked with a purple "Synonym" badge in the interface and show their canonical form when selected.
+
+### No-Effect Flags
+
+The parser detects flags that have no effect on program behavior (e.g., flags that exist only for GCC compatibility). These are marked with `has_no_effect=true` in the JSON. Examples include `-Wignored-pragma-optimize` and many other compatibility flags. These flags are treated as "enabled" in the inconsistency analysis since they don't affect program correctness.

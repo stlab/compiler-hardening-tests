@@ -41,9 +41,20 @@ The tool is automatically deployed to GitHub Pages when:
 
 ### Generate the data
 
+From the `tools/diagnostic-flags` directory:
+
 ```bash
 python3 parse_diagnostics.py --include-transitive
 ```
+
+Or from the repository root:
+
+```bash
+cd tools/diagnostic-flags
+python3 parse_diagnostics.py --include-transitive
+```
+
+**Note for Windows users:** You may need to use `python` instead of `python3`.
 
 Options:
 - `--url URL`: Custom URL for the diagnostics reference

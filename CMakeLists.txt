@@ -53,9 +53,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
         # Placeholder for Apple Clang hardening options
         -O2 -Wall -Wformat -Wformat=2 -Wconversion -Wimplicit-fallthrough
         -Werror=format-security
-        -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3
-        -D_GLIBCXX_ASSERTIONS
-        -fstrict-flex-arrays=3
+        -pedantic-errors
         -fstack-clash-protection -fstack-protector-strong
         -Wl,-z,nodlopen -Wl,-z,noexecstack
         -Wl,-z,relro -Wl,-z,now

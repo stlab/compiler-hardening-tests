@@ -51,6 +51,10 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
     
     target_compile_options(hardening-test PRIVATE
         # Placeholder for Apple Clang hardening options
+
+        -Wshadow -Warray-bounds-pointer-arithmetic
+        -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST
+
         -O2 -Wall -Wformat -Wformat=2 -Wconversion -Wimplicit-fallthrough
         -Werror=format-security
         -pedantic-errors
@@ -59,7 +63,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
         -Wextra
         -Wsign-conversion
 
-        -fPIE -pie
+        -fPIE
 
         -fno-delete-null-pointer-checks -fno-strict-overflow -fno-strict-aliasing -ftrivial-auto-var-init=zero
     )

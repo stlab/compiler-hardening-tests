@@ -70,16 +70,19 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
         -fsanitize-minimal-runtime -fsanitize=undefined 
     )
     
+    target_link_options(hardening-test PRIVATE
+        -fsanitize-minimal-runtime -fsanitize=undefined
+    )
+    
     # Architecture-specific options for Apple Clang
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
         target_compile_options(hardening-test PRIVATE
             # x86-64 specific hardening for Apple Clang
-            -fcf-protection=full
+            -fstack-clash-protection
         )
     elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
         target_compile_options(hardening-test PRIVATE
             # ARM64 specific hardening for Apple Clang
-            -mbranch-protection=standard
         )
     endif()
 

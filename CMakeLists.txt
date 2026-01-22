@@ -66,6 +66,8 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
         -fPIE
 
         -fno-delete-null-pointer-checks -fno-strict-overflow -fno-strict-aliasing -ftrivial-auto-var-init=zero
+
+        -fsanitize-minimal-runtime -fsanitize=undefined 
     )
     
     # Architecture-specific options for Apple Clang

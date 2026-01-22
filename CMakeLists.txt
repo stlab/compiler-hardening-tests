@@ -51,27 +51,54 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
     
     target_compile_options(hardening-test PRIVATE
         # Placeholder for Apple Clang hardening options
-
-        -Wshadow -Warray-bounds-pointer-arithmetic
-        -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST
-
-        -O2 -Wall -Wformat -Wformat=2 -Wconversion -Wimplicit-fallthrough
+        -Wall
+        -Warray-bounds-pointer-arithmetic
+        -Wconversion
         -Werror=format-security
-        -pedantic-errors
-        -fstack-protector-strong
-
         -Wextra
+        -Wformat
+        -Wformat=2
+        -Wimplicit-fallthrough
+        -Wshadow
         -Wsign-conversion
 
-        -fPIE
-
-        -fno-delete-null-pointer-checks -fno-strict-overflow -fno-strict-aliasing -ftrivial-auto-var-init=zero
-
-        -fsanitize=undefined 
+        -fPIE # For executables
+        -fstack-protector-strong
+        -pedantic-errors
     )
     
     target_link_options(hardening-test PRIVATE
-        -fsanitize=undefined
+    )
+    
+    # Debug-specific flags
+    target_compile_options(hardening-test PRIVATE
+        $<$<CONFIG:Debug>:
+            # Debug-specific options for Apple Clang
+        >
+    )
+    
+    target_link_options(hardening-test PRIVATE
+        $<$<CONFIG:Debug>:
+            # Debug-specific link options for Apple Clang
+        >
+    )
+    
+    # Release-specific flags
+    target_compile_options(hardening-test PRIVATE
+        $<$<CONFIG:Release>:
+            # Release-specific options for Apple Clang
+            -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST
+            -fno-delete-null-pointer-checks
+            -fno-strict-aliasing
+            -fno-strict-overflow
+            -ftrivial-auto-var-init=zero
+        >
+    )
+    
+    target_link_options(hardening-test PRIVATE
+        $<$<CONFIG:Release>:
+            # Release-specific link options for Apple Clang
+        >
     )
     
     # Architecture-specific options for Apple Clang
@@ -98,6 +125,32 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT CMAKE_CXX_COMPILER_ID MATCH
         -Wpedantic
     )
     
+    # Debug-specific flags
+    target_compile_options(hardening-test PRIVATE
+        $<$<CONFIG:Debug>:
+            # Debug-specific options for Clang
+        >
+    )
+    
+    target_link_options(hardening-test PRIVATE
+        $<$<CONFIG:Debug>:
+            # Debug-specific link options for Clang
+        >
+    )
+    
+    # Release-specific flags
+    target_compile_options(hardening-test PRIVATE
+        $<$<CONFIG:Release>:
+            # Release-specific options for Clang
+        >
+    )
+    
+    target_link_options(hardening-test PRIVATE
+        $<$<CONFIG:Release>:
+            # Release-specific link options for Clang
+        >
+    )
+    
     # Architecture-specific options for Clang
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
         target_compile_options(hardening-test PRIVATE
@@ -122,6 +175,32 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         -Wpedantic
     )
     
+    # Debug-specific flags
+    target_compile_options(hardening-test PRIVATE
+        $<$<CONFIG:Debug>:
+            # Debug-specific options for GCC
+        >
+    )
+    
+    target_link_options(hardening-test PRIVATE
+        $<$<CONFIG:Debug>:
+            # Debug-specific link options for GCC
+        >
+    )
+    
+    # Release-specific flags
+    target_compile_options(hardening-test PRIVATE
+        $<$<CONFIG:Release>:
+            # Release-specific options for GCC
+        >
+    )
+    
+    target_link_options(hardening-test PRIVATE
+        $<$<CONFIG:Release>:
+            # Release-specific link options for GCC
+        >
+    )
+    
     # Architecture-specific options for GCC
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
         target_compile_options(hardening-test PRIVATE
@@ -142,6 +221,32 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     target_compile_options(hardening-test PRIVATE
         # Placeholder for MSVC hardening options
         /W4
+    )
+    
+    # Debug-specific flags
+    target_compile_options(hardening-test PRIVATE
+        $<$<CONFIG:Debug>:
+            # Debug-specific options for MSVC
+        >
+    )
+    
+    target_link_options(hardening-test PRIVATE
+        $<$<CONFIG:Debug>:
+            # Debug-specific link options for MSVC
+        >
+    )
+    
+    # Release-specific flags
+    target_compile_options(hardening-test PRIVATE
+        $<$<CONFIG:Release>:
+            # Release-specific options for MSVC
+        >
+    )
+    
+    target_link_options(hardening-test PRIVATE
+        $<$<CONFIG:Release>:
+            # Release-specific link options for MSVC
+        >
     )
     
     # Architecture-specific options for MSVC
@@ -166,6 +271,32 @@ elseif(EMSCRIPTEN)
         -Wall
         -Wextra
         -Wpedantic
+    )
+    
+    # Debug-specific flags
+    target_compile_options(hardening-test PRIVATE
+        $<$<CONFIG:Debug>:
+            # Debug-specific options for Emscripten
+        >
+    )
+    
+    target_link_options(hardening-test PRIVATE
+        $<$<CONFIG:Debug>:
+            # Debug-specific link options for Emscripten
+        >
+    )
+    
+    # Release-specific flags
+    target_compile_options(hardening-test PRIVATE
+        $<$<CONFIG:Release>:
+            # Release-specific options for Emscripten
+        >
+    )
+    
+    target_link_options(hardening-test PRIVATE
+        $<$<CONFIG:Release>:
+            # Release-specific link options for Emscripten
+        >
     )
     
     # Set output file extension to .js (which will also generate .wasm)

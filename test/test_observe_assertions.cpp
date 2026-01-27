@@ -2,6 +2,10 @@
 #include <iostream>
 #include <span>
 
+struct udt {
+  int _a;
+};
+
 // Test that triggers a hardening assertion with observe semantic
 // This test should run on all platforms but output validation is
 // platform-specific
@@ -9,10 +13,10 @@ int main() {
   std::cout << "Testing libc++ hardening with observe semantic\n";
 
   // Create a span and intentionally access out of bounds
-  std::array<int, 5> arr = {1, 2, 3, 4, 5};
-  const std::span<int> sp(arr);
+  std::array<udt, 5> arr = {1, 2, 3, 4, 5};
+  const std::span<udt> SP(arr);
 
-  std::cout << "Valid access: sp[2] = " << sp[2] << "\n";
+  std::cout << "Valid access: sp[2]._a = " << SP[2]._a << "\n";
 
   // This should trigger an assertion in observe mode
   // In observe mode, it should log an error but continue execution

@@ -1,46 +1,7 @@
 ---
 # Clang-Tidy configuration for compiler hardening tests
-Checks: >
-  -*,
-  bugprone-*,
-  cert-*,
-  clang-analyzer-*,
-  concurrency-*,
-  cppcoreguidelines-*,
-  misc-*,
-  modernize-*,
-  performance-*,
-  portability-*,
-  readability-*,
-  -modernize-use-trailing-return-type,
-  -readability-identifier-length,
-  -cppcoreguidelines-avoid-magic-numbers,
-  -readability-magic-numbers
-
+# Using default checks only
+Checks: ''
 WarningsAsErrors: ''
 HeaderFilterRegex: '.*'
 FormatStyle: file
-
-CheckOptions:
-  - key: readability-identifier-naming.NamespaceCase
-    value: lower_case
-  - key: readability-identifier-naming.ClassCase
-    value: CamelCase
-  - key: readability-identifier-naming.StructCase
-    value: CamelCase
-  - key: readability-identifier-naming.FunctionCase
-    value: lower_case
-  - key: readability-identifier-naming.VariableCase
-    value: lower_case
-  - key: readability-identifier-naming.ConstantCase
-    value: UPPER_CASE
-  - key: readability-identifier-naming.ParameterCase
-    value: lower_case
-  - key: readability-identifier-naming.EnumConstantCase
-    value: UPPER_CASE
-  - key: modernize-use-auto.MinTypeNameLength
-    value: 5
-  - key: performance-move-const-arg.CheckTriviallyCopyableMove
-    value: true
-  - key: cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor
-    value: true

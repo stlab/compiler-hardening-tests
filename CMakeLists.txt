@@ -58,7 +58,8 @@ function(apply_hardening_flags target)
         # Release-specific flags
         target_compile_options(${target} PRIVATE
             $<$<CONFIG:Release>:
-                -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST
+                -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG
+                -D_LIBCPP_ASSERTION_SEMANTIC=_LIBCPP_ASSERTION_SEMANTIC_OBSERVE
                 -fno-delete-null-pointer-checks
                 -fno-strict-aliasing
                 -fno-strict-overflow

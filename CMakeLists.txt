@@ -51,15 +51,15 @@ function(apply_hardening_flags target)
         target_compile_options(${target} PRIVATE
             $<$<CONFIG:Debug>:
                 -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG
-                -D_LIBCPP_ASSERTION_SEMANTIC=_LIBCPP_ASSERTION_SEMANTIC_OBSERVE
+                # -D_LIBCPP_ASSERTION_SEMANTIC=_LIBCPP_ASSERTION_SEMANTIC_OBSERVE
             >
         )
         
         # Release-specific flags
         target_compile_options(${target} PRIVATE
             $<$<CONFIG:Release>:
-                -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG
-                -D_LIBCPP_ASSERTION_SEMANTIC=_LIBCPP_ASSERTION_SEMANTIC_OBSERVE
+                -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST
+                # -D_LIBCPP_ASSERTION_SEMANTIC=_LIBCPP_ASSERTION_SEMANTIC_OBSERVE
                 -fno-delete-null-pointer-checks
                 -fno-strict-aliasing
                 -fno-strict-overflow
@@ -242,36 +242,26 @@ set_tests_properties(report PROPERTIES
     LABELS "info;always-pass"
 )
 
-# Observe assertions test - validates libc++ observe semantic
-add_executable(test-observe-assertions test/test_observe_assertions.cpp)
-apply_hardening_flags(test-observe-assertions)
+# Hardening assertions test - validates libc++ hardening aborts on violations
+add_executable(test-hardening-assertions test/test_observe_assertions.cpp)
+apply_hardening_flags(test-hardening-assertions)
 
-# Basic test that runs on all platforms
-add_test(
-    NAME observe_assertions_basic
-    COMMAND test-observe-assertions
-)
-set_tests_properties(observe_assertions_basic PROPERTIES
-    LABELS "hardening;observe"
-)
-
-# macOS-specific test that validates the observe semantic output
+# macOS-specific test that validates the program aborts on hardening violations
 if(APPLE)
     add_test(
-        NAME observe_assertions_output_check
-        COMMAND ${CMAKE_COMMAND} -E env
-            bash -c "$<TARGET_FILE:test-observe-assertions> 2>&1 | tee /tmp/test_output.txt && grep -q 'OBSERVE_TEST_PASSED' /tmp/test_output.txt"
+        NAME hardening_assertions_abort_check
+        COMMAND test-hardening-assertions
     )
     
-    set_tests_properties(observe_assertions_output_check PROPERTIES
-        LABELS "macOS;hardening;observe"
-        PASS_REGULAR_EXPRESSION "OBSERVE_TEST_PASSED"
+    set_tests_properties(hardening_assertions_abort_check PROPERTIES
+        LABELS "macOS;hardening"
+        WILL_FAIL TRUE  # Test passes if the program exits with non-zero (aborts)
     )
 endif()
 
 # ============================================================================
 # Installation
 # ============================================================================
-install(TARGETS test-report test-observe-assertions
+install(TARGETS test-report test-hardening-assertions
     RUNTIME DESTINATION bin
 )

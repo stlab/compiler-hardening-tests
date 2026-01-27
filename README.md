@@ -227,7 +227,7 @@ This project is test-focused. All executables are tests that verify compiler har
 ### Available Tests
 
 1. **Report Test** (`test-report`): Always passes and logs compiler/platform information
-2. **Observe Semantic Test** (`test-observe-assertions`): Validates libc++ `observe` assertion semantic on macOS
+2. **Hardening Assertions Test** (`test-hardening-assertions`): Validates that libc++ hardening aborts on violations on macOS
 
 ### Running Tests
 
@@ -251,26 +251,25 @@ ctest --preset=apple-clang-arm64-debug -R report --output-on-failure
 
 | Preset                     | Description                                        |
 | -------------------------- | -------------------------------------------------- |
-| `apple-clang-x64-debug`    | Debug build with observe semantic (macOS x86-64)   |
-| `apple-clang-arm64-debug`  | Debug build with observe semantic (macOS ARM64)    |
+| `apple-clang-x64-debug`    | Debug build with hardening enabled (macOS x86-64)  |
+| `apple-clang-arm64-debug`  | Debug build with hardening enabled (macOS ARM64)   |
 
-### libc++ Observe Semantic Test
+### libc++ Hardening Test
 
-The observe semantic test validates that libc++ hardening works correctly:
+The hardening test validates that libc++ hardening correctly aborts when violations are detected:
 
 1. Intentionally triggers a hardening assertion (out-of-bounds `std::span` access)
-2. Verifies that with `observe` semantic, the program logs an error but continues execution
-3. On macOS, validates that `OBSERVE_TEST_PASSED` appears in the output
-4. On other platforms, the test runs but output validation is skipped
+2. On macOS with hardening enabled, the program aborts (test passes via `WILL_FAIL TRUE`)
+3. Verifies that hardening checks are working correctly
+4. On other platforms, the test may skip if hardening is not available
 
 #### Compiler Flags
 
 On macOS Debug builds:
-- `-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG` - Debug mode hardening
-- `-D_LIBCPP_ASSERTION_SEMANTIC=_LIBCPP_ASSERTION_SEMANTIC_OBSERVE` - Observe semantic
+- `-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG` - Debug mode hardening (all checks, aborts on violations)
 
 On macOS Release builds:
-- `-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST` - Fast mode hardening
+- `-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST` - Fast mode hardening (security-critical checks, aborts on violations)
 
 See [test/README.md](test/README.md) for detailed test documentation.
 
@@ -301,7 +300,7 @@ See `.github/workflows/ci.yml` for details.
 ├── test/
 │   ├── README.md                     # Test documentation
 │   ├── report.cpp                    # Report test (logs compiler/platform info)
-│   └── test_observe_assertions.cpp   # Observe semantic test
+│   └── test_observe_assertions.cpp   # Hardening assertions test (validates abort on violations)
 ├── tools/
 │   ├── diagnostic-flags/             # Diagnostic flags analysis tools
 │   └── inconsistency-analysis/       # Inconsistency analysis tools

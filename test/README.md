@@ -8,26 +8,26 @@ This directory contains all test executables for verifying compiler hardening fe
 
 A simple test that always passes and logs compiler and platform information. Useful for verifying the build environment.
 
-### Observe Semantic Test (`test_observe_assertions.cpp`)
+### Hardening Assertions Test (`test_observe_assertions.cpp`)
 
-Validates that the libc++ `observe` assertion semantic works correctly on macOS. The `observe` semantic is designed to log errors when hardening checks fail but continue program execution instead of terminating.
+Validates that libc++ hardening correctly aborts when a violation is detected on macOS. This test intentionally triggers an out-of-bounds access to verify that hardening checks are working.
 
 #### How It Works
 
 The test intentionally triggers a hardening assertion by performing an out-of-bounds access on a `std::span`:
 
 ```cpp
-std::span<int> sp(arr, 5);
-volatile int out_of_bounds = sp[10];  // Index 10 is out of bounds
+std::span<udt> sp(arr);
+volatile udt out_of_bounds = sp[10];  // Index 10 is out of bounds (array has 5 elements)
 ```
 
-With the `observe` semantic enabled:
-- **Expected behavior on macOS**: The assertion fires, logs an error message to stderr, but the program continues execution and prints `OBSERVE_TEST_PASSED`
-- **Other platforms**: The test runs but outputs `OBSERVE_TEST_SKIPPED` since the observe semantic is only configured for macOS builds
+With hardening enabled:
+- **Expected behavior on macOS**: The program aborts when the hardening check detects the violation (test passes via `WILL_FAIL TRUE`)
+- **Other platforms**: The test runs but may not have hardening checks, so it reports `HARDENING_TEST_SKIPPED`
 
 ## Building and Running Tests
 
-### On macOS (Debug mode with observe semantic):
+### On macOS (Debug mode with hardening):
 
 ```bash
 # Configure for Apple Clang with Debug mode
@@ -41,20 +41,19 @@ ctest --preset=apple-clang-arm64-debug --output-on-failure
 
 # Run a specific test directly
 ./build/apple-clang-arm64-debug/test-report
-./build/apple-clang-arm64-debug/test-observe-assertions
+# Note: test-hardening-assertions will abort when run directly (expected behavior)
 ```
 
 ### On other platforms:
 
-Tests compile and run on all platforms. The observe semantic test runs but output validation is only performed on macOS. On non-macOS platforms, the observe test reports that it was skipped.
+Tests compile and run on all platforms. The hardening test may not trigger aborts on platforms without libc++ hardening support.
 
 ## CTest Integration
 
 The following tests are configured:
 
 1. **`report`**: Always passes, logs compiler and platform information (all platforms)
-2. **`observe_assertions_basic`**: Runs the observe semantic test (all platforms)
-3. **`observe_assertions_output_check`**: Only runs on macOS, validates that `OBSERVE_TEST_PASSED` appears in the output
+2. **`hardening_assertions_abort_check`**: Only runs on macOS, validates that the program aborts when a hardening violation is detected (test passes when program aborts)
 
 ## Compiler Flags
 
@@ -63,11 +62,10 @@ All tests are compiled with compiler-specific hardening flags using the `apply_h
 On macOS, tests use:
 
 **Debug mode:**
-- `-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG`: Enables debug mode hardening
-- `-D_LIBCPP_ASSERTION_SEMANTIC=_LIBCPP_ASSERTION_SEMANTIC_OBSERVE`: Uses observe semantic (log but continue)
+- `-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG`: Enables debug mode hardening (all checks, aborts on violations)
 
 **Release mode:**
-- `-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST`: Enables fast mode hardening (includes bounds checking)
+- `-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST`: Enables fast mode hardening (security-critical checks, aborts on violations)
 
 ## Expected Output
 
@@ -80,33 +78,44 @@ Compiler: Apple Clang 15.0
 Architecture: ARM64
 ```
 
-### Observe Semantic Test
+### Hardening Assertions Test
 
-On macOS with observe semantic, you should see output similar to:
-
+**When run via CTest on macOS** (test passes):
 ```
-Testing libc++ hardening with observe semantic
-Valid access: sp[2] = 3
+Test project /path/to/build
+    Start 1: report
+1/2 Test #1: report ...........................   Passed    0.01 sec
+    Start 2: hardening_assertions_abort_check
+2/2 Test #2: hardening_assertions_abort_check ..   Passed    0.02 sec
+
+100% tests passed, 0 tests failed out of 2
+```
+
+**When run directly on macOS** (aborts as expected):
+```
+Testing libc++ hardening assertion behavior
+Valid access: sp[2]._a = 3
 Attempting out-of-bounds access...
-[libc++ assertion error message about out-of-bounds access]
-Continued execution after out-of-bounds access
-OBSERVE_TEST_PASSED
+Triggering hardening violation (expecting abort)...
+[Program aborts with hardening error message]
 ```
 
 The key points are:
-- An error message is logged when the out-of-bounds access occurs
-- Execution continues after the assertion
-- The test outputs `OBSERVE_TEST_PASSED`
+- The hardening check detects the out-of-bounds access
+- The program aborts (does not continue execution)
+- CTest expects this abort (via `WILL_FAIL TRUE`), so the test passes
 
 ## Debugging
 
 If a test fails:
 
 1. Verify you're using the correct platform and compiler
-2. For observe semantic tests on macOS: Check that the Debug preset is being used
+2. For hardening tests on macOS: Check that Debug or Release mode is being used (both have hardening enabled)
 3. Examine the compiler flags: `cmake --build --preset=apple-clang-arm64-debug --verbose`
-4. Run the test manually to see the full output: `./build/apple-clang-arm64-debug/test-observe-assertions 2>&1`
+4. Check if hardening is enabled by looking for `-D_LIBCPP_HARDENING_MODE` in the compile commands
 5. Check CTest output: `ctest --preset=apple-clang-arm64-debug -V` (verbose mode)
+
+**Note**: If `hardening_assertions_abort_check` fails (doesn't abort), it means hardening is not working correctly and violations are not being caught.
 
 ## References
 

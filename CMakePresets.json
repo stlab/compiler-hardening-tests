@@ -177,6 +177,24 @@
       "cacheVariables": {
         "CMAKE_CXX_CLANG_TIDY": "clang-tidy;--warnings-as-errors=*"
       }
+    },
+    {
+      "name": "apple-clang-x64-debug",
+      "displayName": "Apple Clang x86-64 Debug",
+      "description": "Apple Clang compiler on x86-64 architecture (Debug mode with observe semantic)",
+      "inherits": "apple-clang-x64",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "apple-clang-arm64-debug",
+      "displayName": "Apple Clang ARM64 Debug",
+      "description": "Apple Clang compiler on ARM64 architecture (Debug mode with observe semantic)",
+      "inherits": "apple-clang-arm64",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
     }
   ],
   "buildPresets": [
@@ -219,6 +237,30 @@
     {
       "name": "clang-tidy",
       "configurePreset": "clang-tidy"
+    },
+    {
+      "name": "apple-clang-x64-debug",
+      "configurePreset": "apple-clang-x64-debug"
+    },
+    {
+      "name": "apple-clang-arm64-debug",
+      "configurePreset": "apple-clang-arm64-debug"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "apple-clang-x64-debug",
+      "configurePreset": "apple-clang-x64-debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "apple-clang-arm64-debug",
+      "configurePreset": "apple-clang-arm64-debug",
+      "output": {
+        "outputOnFailure": true
+      }
     }
   ]
 }

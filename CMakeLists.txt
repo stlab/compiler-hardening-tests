@@ -14,311 +14,263 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Export compile commands for clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Create the executable
-add_executable(hardening-test main.cpp)
+# Enable testing
+enable_testing()
 
 # ============================================================================
-# Compiler-Specific Hardening Options
+# Compiler-Specific Hardening Options Function
 # ============================================================================
 
-# Helper function to add architecture-specific flags
-function(add_arch_specific_flags target)
-    # Determine target architecture
-    set(TARGET_ARCH "")
-    if(APPLE AND CMAKE_OSX_ARCHITECTURES)
-        set(TARGET_ARCH ${CMAKE_OSX_ARCHITECTURES})
-    else()
-        set(TARGET_ARCH ${CMAKE_SYSTEM_PROCESSOR})
-    endif()
+# Function to apply compiler-specific hardening flags to a target
+function(apply_hardening_flags target)
+    message(STATUS "Applying hardening flags to ${target}")
     
-    if(TARGET_ARCH MATCHES "x86_64|AMD64")
-        # x86-64 specific flags will go here
-        message(STATUS "Configuring for x86-64 architecture")
-    elseif(TARGET_ARCH MATCHES "aarch64|ARM64|arm64")
-        # ARM64 specific flags will go here
-        message(STATUS "Configuring for ARM64 architecture")
+    # ----------------------------------------------------------------------------
+    # Apple Clang Hardening Options
+    # ----------------------------------------------------------------------------
+    if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
+        message(STATUS "  Compiler: Apple Clang")
+        
+        target_compile_options(${target} PRIVATE
+            -Wall
+            -Warray-bounds-pointer-arithmetic
+            -Wconversion
+            -Werror=format-security
+            -Wextra
+            -Wformat
+            -Wformat=2
+            -Wimplicit-fallthrough
+            -Wshadow
+            -Wsign-conversion
+            -fPIE
+            -fstack-protector-strong
+            -pedantic-errors
+        )
+        
+        # Debug-specific flags
+        target_compile_options(${target} PRIVATE
+            $<$<CONFIG:Debug>:
+                -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG
+                -D_LIBCPP_ASSERTION_SEMANTIC=_LIBCPP_ASSERTION_SEMANTIC_OBSERVE
+            >
+        )
+        
+        # Release-specific flags
+        target_compile_options(${target} PRIVATE
+            $<$<CONFIG:Release>:
+                -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST
+                -fno-delete-null-pointer-checks
+                -fno-strict-aliasing
+                -fno-strict-overflow
+                -ftrivial-auto-var-init=zero
+            >
+        )
+        
+        # Architecture-specific options
+        if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+            target_compile_options(${target} PRIVATE
+                # x86-64 specific hardening for Apple Clang
+            )
+        elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
+            target_compile_options(${target} PRIVATE
+                # ARM64 specific hardening for Apple Clang
+            )
+        endif()
+
+    # ----------------------------------------------------------------------------
+    # Clang Hardening Options
+    # ----------------------------------------------------------------------------
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
+        message(STATUS "  Compiler: Clang")
+        
+        target_compile_options(${target} PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+        )
+        
+        # Debug-specific flags
+        target_compile_options(${target} PRIVATE
+            $<$<CONFIG:Debug>:
+                # Debug-specific options for Clang
+            >
+        )
+        
+        # Release-specific flags
+        target_compile_options(${target} PRIVATE
+            $<$<CONFIG:Release>:
+                # Release-specific options for Clang
+            >
+        )
+        
+        # Architecture-specific options
+        if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
+            target_compile_options(${target} PRIVATE
+                # x86-64 specific hardening for Clang
+            )
+        elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|ARM64")
+            target_compile_options(${target} PRIVATE
+                # ARM64 specific hardening for Clang
+            )
+        endif()
+
+    # ----------------------------------------------------------------------------
+    # GCC Hardening Options
+    # ----------------------------------------------------------------------------
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+        message(STATUS "  Compiler: GCC")
+        
+        target_compile_options(${target} PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+        )
+        
+        # Debug-specific flags
+        target_compile_options(${target} PRIVATE
+            $<$<CONFIG:Debug>:
+                # Debug-specific options for GCC
+            >
+        )
+        
+        # Release-specific flags
+        target_compile_options(${target} PRIVATE
+            $<$<CONFIG:Release>:
+                # Release-specific options for GCC
+            >
+        )
+        
+        # Architecture-specific options
+        if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
+            target_compile_options(${target} PRIVATE
+                # x86-64 specific hardening for GCC
+            )
+        elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|ARM64")
+            target_compile_options(${target} PRIVATE
+                # ARM64 specific hardening for GCC
+            )
+        endif()
+
+    # ----------------------------------------------------------------------------
+    # MSVC Hardening Options
+    # ----------------------------------------------------------------------------
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+        message(STATUS "  Compiler: MSVC")
+        
+        target_compile_options(${target} PRIVATE
+            /W4
+        )
+        
+        # Debug-specific flags
+        target_compile_options(${target} PRIVATE
+            $<$<CONFIG:Debug>:
+                # Debug-specific options for MSVC
+            >
+        )
+        
+        # Release-specific flags
+        target_compile_options(${target} PRIVATE
+            $<$<CONFIG:Release>:
+                # Release-specific options for MSVC
+            >
+        )
+        
+        # Architecture-specific options
+        if(CMAKE_SYSTEM_PROCESSOR MATCHES "AMD64|x64")
+            target_compile_options(${target} PRIVATE
+                # x86-64 specific hardening for MSVC
+            )
+        elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "ARM64")
+            target_compile_options(${target} PRIVATE
+                # ARM64 specific hardening for MSVC
+            )
+        endif()
+
+    # ----------------------------------------------------------------------------
+    # Emscripten Hardening Options
+    # ----------------------------------------------------------------------------
     elseif(EMSCRIPTEN)
-        # WebAssembly specific flags will go here
-        message(STATUS "Configuring for WebAssembly architecture")
+        message(STATUS "  Compiler: Emscripten")
+        
+        target_compile_options(${target} PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+        )
+        
+        # Debug-specific flags
+        target_compile_options(${target} PRIVATE
+            $<$<CONFIG:Debug>:
+                # Debug-specific options for Emscripten
+            >
+        )
+        
+        # Release-specific flags
+        target_compile_options(${target} PRIVATE
+            $<$<CONFIG:Release>:
+                # Release-specific options for Emscripten
+            >
+        )
+        
+        # Set output file extension to .js (which will also generate .wasm)
+        set_target_properties(${target} PROPERTIES SUFFIX ".js")
+        
+        target_link_options(${target} PRIVATE
+            # Target Node.js environment specifically
+            -sENVIRONMENT=node
+            # Embed wasm as base64 in JS to avoid fetch() URL issues with Node.js
+            -sSINGLE_FILE=1
+            -sNODEJS_CATCH_EXIT=0
+            -sNODEJS_CATCH_REJECTION=0
+        )
     endif()
 endfunction()
 
-# ----------------------------------------------------------------------------
-# Apple Clang Hardening Options
-# ----------------------------------------------------------------------------
-if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
-    message(STATUS "Configuring hardening options for Apple Clang")
-    
-    target_compile_options(hardening-test PRIVATE
-        # Placeholder for Apple Clang hardening options
-        -Wall
-        -Warray-bounds-pointer-arithmetic
-        -Wconversion
-        -Werror=format-security
-        -Wextra
-        -Wformat
-        -Wformat=2
-        -Wimplicit-fallthrough
-        -Wshadow
-        -Wsign-conversion
+# ============================================================================
+# Test Executables
+# ============================================================================
 
-        -fPIE # For executables
-        -fstack-protector-strong
-        -pedantic-errors
-    )
-    
-    target_link_options(hardening-test PRIVATE
-    )
-    
-    # Debug-specific flags
-    target_compile_options(hardening-test PRIVATE
-        $<$<CONFIG:Debug>:
-            # Debug-specific options for Apple Clang
-        >
-    )
-    
-    target_link_options(hardening-test PRIVATE
-        $<$<CONFIG:Debug>:
-            # Debug-specific link options for Apple Clang
-        >
-    )
-    
-    # Release-specific flags
-    target_compile_options(hardening-test PRIVATE
-        $<$<CONFIG:Release>:
-            # Release-specific options for Apple Clang
-            -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST
-            -fno-delete-null-pointer-checks
-            -fno-strict-aliasing
-            -fno-strict-overflow
-            -ftrivial-auto-var-init=zero
-        >
-    )
-    
-    target_link_options(hardening-test PRIVATE
-        $<$<CONFIG:Release>:
-            # Release-specific link options for Apple Clang
-        >
-    )
-    
-    # Architecture-specific options for Apple Clang
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
-        target_compile_options(hardening-test PRIVATE
-            # x86-64 specific hardening for Apple Clang
-        )
-    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
-        target_compile_options(hardening-test PRIVATE
-            # ARM64 specific hardening for Apple Clang
-        )
-    endif()
+# Report test - logs compiler and platform information
+add_executable(test-report test/report.cpp)
+apply_hardening_flags(test-report)
+add_test(
+    NAME report
+    COMMAND test-report
+)
+set_tests_properties(report PROPERTIES
+    LABELS "info;always-pass"
+)
 
-# ----------------------------------------------------------------------------
-# Clang Hardening Options
-# ----------------------------------------------------------------------------
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND NOT CMAKE_CXX_COMPILER_ID MATCHES "AppleClang")
-    message(STATUS "Configuring hardening options for Clang")
-    
-    target_compile_options(hardening-test PRIVATE
-        # Placeholder for Clang hardening options
-        -Wall
-        -Wextra
-        -Wpedantic
-    )
-    
-    # Debug-specific flags
-    target_compile_options(hardening-test PRIVATE
-        $<$<CONFIG:Debug>:
-            # Debug-specific options for Clang
-        >
-    )
-    
-    target_link_options(hardening-test PRIVATE
-        $<$<CONFIG:Debug>:
-            # Debug-specific link options for Clang
-        >
-    )
-    
-    # Release-specific flags
-    target_compile_options(hardening-test PRIVATE
-        $<$<CONFIG:Release>:
-            # Release-specific options for Clang
-        >
-    )
-    
-    target_link_options(hardening-test PRIVATE
-        $<$<CONFIG:Release>:
-            # Release-specific link options for Clang
-        >
-    )
-    
-    # Architecture-specific options for Clang
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
-        target_compile_options(hardening-test PRIVATE
-            # x86-64 specific hardening for Clang
-        )
-    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|ARM64")
-        target_compile_options(hardening-test PRIVATE
-            # ARM64 specific hardening for Clang
-        )
-    endif()
+# Observe assertions test - validates libc++ observe semantic
+add_executable(test-observe-assertions test/test_observe_assertions.cpp)
+apply_hardening_flags(test-observe-assertions)
 
-# ----------------------------------------------------------------------------
-# GCC Hardening Options
-# ----------------------------------------------------------------------------
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    message(STATUS "Configuring hardening options for GCC")
-    
-    target_compile_options(hardening-test PRIVATE
-        # Placeholder for GCC hardening options
-        -Wall
-        -Wextra
-        -Wpedantic
-    )
-    
-    # Debug-specific flags
-    target_compile_options(hardening-test PRIVATE
-        $<$<CONFIG:Debug>:
-            # Debug-specific options for GCC
-        >
-    )
-    
-    target_link_options(hardening-test PRIVATE
-        $<$<CONFIG:Debug>:
-            # Debug-specific link options for GCC
-        >
-    )
-    
-    # Release-specific flags
-    target_compile_options(hardening-test PRIVATE
-        $<$<CONFIG:Release>:
-            # Release-specific options for GCC
-        >
-    )
-    
-    target_link_options(hardening-test PRIVATE
-        $<$<CONFIG:Release>:
-            # Release-specific link options for GCC
-        >
-    )
-    
-    # Architecture-specific options for GCC
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
-        target_compile_options(hardening-test PRIVATE
-            # x86-64 specific hardening for GCC
-        )
-    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|ARM64")
-        target_compile_options(hardening-test PRIVATE
-            # ARM64 specific hardening for GCC
-        )
-    endif()
+# Basic test that runs on all platforms
+add_test(
+    NAME observe_assertions_basic
+    COMMAND test-observe-assertions
+)
+set_tests_properties(observe_assertions_basic PROPERTIES
+    LABELS "hardening;observe"
+)
 
-# ----------------------------------------------------------------------------
-# MSVC Hardening Options
-# ----------------------------------------------------------------------------
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    message(STATUS "Configuring hardening options for MSVC")
-    
-    target_compile_options(hardening-test PRIVATE
-        # Placeholder for MSVC hardening options
-        /W4
+# macOS-specific test that validates the observe semantic output
+if(APPLE)
+    add_test(
+        NAME observe_assertions_output_check
+        COMMAND ${CMAKE_COMMAND} -E env
+            bash -c "$<TARGET_FILE:test-observe-assertions> 2>&1 | tee /tmp/test_output.txt && grep -q 'OBSERVE_TEST_PASSED' /tmp/test_output.txt"
     )
     
-    # Debug-specific flags
-    target_compile_options(hardening-test PRIVATE
-        $<$<CONFIG:Debug>:
-            # Debug-specific options for MSVC
-        >
-    )
-    
-    target_link_options(hardening-test PRIVATE
-        $<$<CONFIG:Debug>:
-            # Debug-specific link options for MSVC
-        >
-    )
-    
-    # Release-specific flags
-    target_compile_options(hardening-test PRIVATE
-        $<$<CONFIG:Release>:
-            # Release-specific options for MSVC
-        >
-    )
-    
-    target_link_options(hardening-test PRIVATE
-        $<$<CONFIG:Release>:
-            # Release-specific link options for MSVC
-        >
-    )
-    
-    # Architecture-specific options for MSVC
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "AMD64|x64")
-        target_compile_options(hardening-test PRIVATE
-            # x86-64 specific hardening for MSVC
-        )
-    elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "ARM64")
-        target_compile_options(hardening-test PRIVATE
-            # ARM64 specific hardening for MSVC
-        )
-    endif()
-
-# ----------------------------------------------------------------------------
-# Emscripten Hardening Options
-# ----------------------------------------------------------------------------
-elseif(EMSCRIPTEN)
-    message(STATUS "Configuring hardening options for Emscripten")
-    
-    target_compile_options(hardening-test PRIVATE
-        # Placeholder for Emscripten hardening options
-        -Wall
-        -Wextra
-        -Wpedantic
-    )
-    
-    # Debug-specific flags
-    target_compile_options(hardening-test PRIVATE
-        $<$<CONFIG:Debug>:
-            # Debug-specific options for Emscripten
-        >
-    )
-    
-    target_link_options(hardening-test PRIVATE
-        $<$<CONFIG:Debug>:
-            # Debug-specific link options for Emscripten
-        >
-    )
-    
-    # Release-specific flags
-    target_compile_options(hardening-test PRIVATE
-        $<$<CONFIG:Release>:
-            # Release-specific options for Emscripten
-        >
-    )
-    
-    target_link_options(hardening-test PRIVATE
-        $<$<CONFIG:Release>:
-            # Release-specific link options for Emscripten
-        >
-    )
-    
-    # Set output file extension to .js (which will also generate .wasm)
-    set_target_properties(hardening-test PROPERTIES SUFFIX ".js")
-    
-    target_link_options(hardening-test PRIVATE
-        # Emscripten-specific link options
-        # Target Node.js environment specifically
-        -sENVIRONMENT=node
-        # Embed wasm as base64 in JS to avoid fetch() URL issues with Node.js
-        -sSINGLE_FILE=1
-        -sNODEJS_CATCH_EXIT=0
-        -sNODEJS_CATCH_REJECTION=0
+    set_tests_properties(observe_assertions_output_check PROPERTIES
+        LABELS "macOS;hardening;observe"
+        PASS_REGULAR_EXPRESSION "OBSERVE_TEST_PASSED"
     )
 endif()
-
-# Apply architecture-specific flags
-add_arch_specific_flags(hardening-test)
 
 # ============================================================================
 # Installation
 # ============================================================================
-install(TARGETS hardening-test
+install(TARGETS test-report test-observe-assertions
     RUNTIME DESTINATION bin
 )

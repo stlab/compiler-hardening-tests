@@ -59,10 +59,10 @@ This project provides a framework for systematically testing compiler-specific h
 ### Using VSCode/Cursor
 
 1. Open the Command Palette (`Cmd+Shift+P` or `Ctrl+Shift+P`)
-2. Run: **"CMake: Select Configure Preset"** → Choose a preset (e.g., `apple-clang-x64`)
+2. Run: **"CMake: Select Configure Preset"** → Choose a preset (e.g., `apple-clang-arm64-debug`)
 3. Run: **"CMake: Configure"**
-4. Run: **"CMake: Set Launch Target"** → Select `hardening-test`
-5. Press `F5` to build and run with debugging
+4. Run: **"CMake: Build"**
+5. Run tests using **"CMake: Run Tests"** or use the Testing sidebar
 
 ### Using CMake Presets from Command Line
 
@@ -78,8 +78,8 @@ cmake --preset=<preset-name>
 # Build with a preset
 cmake --build --preset=<preset-name>
 
-# Run the executable
-./build/<preset-name>/hardening-test
+# Run tests
+ctest --preset=<preset-name> --output-on-failure
 ```
 
 ### Available Presets
@@ -118,23 +118,23 @@ You can edit this file to set your preferred default preset based on your system
 
 ### Examples
 
-#### Building on Linux with GCC (x86-64)
+#### Building and Testing on Linux with GCC (x86-64)
 
 ```bash
 cmake --preset=gcc-x64
 cmake --build --preset=gcc-x64
-./build/gcc-x64/hardening-test
+ctest --test-dir build/gcc-x64 --output-on-failure
 ```
 
-#### Building on macOS with Apple Clang (ARM64)
+#### Building and Testing on macOS with Apple Clang (ARM64, Debug mode)
 
 ```bash
-cmake --preset=apple-clang-arm64
-cmake --build --preset=apple-clang-arm64
-./build/apple-clang-arm64/hardening-test
+cmake --preset=apple-clang-arm64-debug
+cmake --build --preset=apple-clang-arm64-debug
+ctest --preset=apple-clang-arm64-debug --output-on-failure
 ```
 
-#### Building for WebAssembly
+#### Building and Testing for WebAssembly
 
 ```bash
 # Make sure EMSDK is installed and activated
@@ -142,21 +142,23 @@ source $EMSDK/emsdk_env.sh
 
 cmake --preset=emscripten-wasm
 cmake --build --preset=emscripten-wasm
-node ./build/emscripten-wasm/hardening-test.js
+ctest --test-dir build/emscripten-wasm --output-on-failure
 ```
 
 ## Adding Hardening Options
 
-The `CMakeLists.txt` file contains dedicated sections for each compiler with placeholders for hardening options. This structure makes it easy to add and test compiler-specific hardening flags.
+The `CMakeLists.txt` file contains a centralized `apply_hardening_flags()` function with compiler-specific hardening options. This function is automatically applied to all test executables, ensuring consistent hardening across the project.
 
-### Compiler-Specific Sections
+### Modifying the Hardening Function
 
-Each compiler has its own section in `CMakeLists.txt`:
+To add or modify hardening flags, edit the `apply_hardening_flags()` function in `CMakeLists.txt`:
 
 ```cmake
 # Example: Adding hardening options for GCC
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    target_compile_options(hardening-test PRIVATE
+    message(STATUS "  Compiler: GCC")
+    
+    target_compile_options(${target} PRIVATE
         -Wall
         -Wextra
         -Wpedantic
@@ -166,7 +168,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         -fPIE
     )
 
-    target_link_options(hardening-test PRIVATE
+    target_link_options(${target} PRIVATE
         -pie
         -Wl,-z,relro
         -Wl,-z,now
@@ -175,21 +177,35 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
 ### Architecture-Specific Options
 
-Each compiler section also includes architecture-specific subsections:
+Each compiler section includes architecture-specific subsections:
 
 ```cmake
 # Architecture-specific options for GCC
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64")
-    target_compile_options(hardening-test PRIVATE
+    target_compile_options(${target} PRIVATE
         # x86-64 specific hardening for GCC
         -fcf-protection=full
     )
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|ARM64")
-    target_compile_options(hardening-test PRIVATE
+    target_compile_options(${target} PRIVATE
         # ARM64 specific hardening for GCC
         -mbranch-protection=standard
     )
 endif()
+```
+
+### Adding New Tests
+
+To add a new test, create a source file in the `test/` directory and add it to `CMakeLists.txt`:
+
+```cmake
+# New test executable
+add_executable(test-my-feature test/test_my_feature.cpp)
+apply_hardening_flags(test-my-feature)
+
+# Register with CTest
+add_test(NAME my_feature COMMAND test-my-feature)
+set_tests_properties(my_feature PROPERTIES LABELS "my-label")
 ```
 
 ## Static Analysis
@@ -203,6 +219,60 @@ cmake --build --preset=clang-tidy
 ```
 
 The clang-tidy preset is based on `clang-x64` and sets `CMAKE_CXX_CLANG_TIDY` to run clang-tidy automatically on all source files during build.
+
+## Testing
+
+This project is test-focused. All executables are tests that verify compiler hardening features.
+
+### Available Tests
+
+1. **Report Test** (`test-report`): Always passes and logs compiler/platform information
+2. **Observe Semantic Test** (`test-observe-assertions`): Validates libc++ `observe` assertion semantic on macOS
+
+### Running Tests
+
+All tests are run using CTest:
+
+```bash
+# Configure with Debug mode for macOS (includes observe semantic)
+cmake --preset=apple-clang-arm64-debug
+
+# Build
+cmake --build --preset=apple-clang-arm64-debug
+
+# Run all tests
+ctest --preset=apple-clang-arm64-debug --output-on-failure
+
+# Run specific test
+ctest --preset=apple-clang-arm64-debug -R report --output-on-failure
+```
+
+### Test Presets
+
+| Preset                     | Description                                        |
+| -------------------------- | -------------------------------------------------- |
+| `apple-clang-x64-debug`    | Debug build with observe semantic (macOS x86-64)   |
+| `apple-clang-arm64-debug`  | Debug build with observe semantic (macOS ARM64)    |
+
+### libc++ Observe Semantic Test
+
+The observe semantic test validates that libc++ hardening works correctly:
+
+1. Intentionally triggers a hardening assertion (out-of-bounds `std::span` access)
+2. Verifies that with `observe` semantic, the program logs an error but continues execution
+3. On macOS, validates that `OBSERVE_TEST_PASSED` appears in the output
+4. On other platforms, the test runs but output validation is skipped
+
+#### Compiler Flags
+
+On macOS Debug builds:
+- `-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG` - Debug mode hardening
+- `-D_LIBCPP_ASSERTION_SEMANTIC=_LIBCPP_ASSERTION_SEMANTIC_OBSERVE` - Observe semantic
+
+On macOS Release builds:
+- `-D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST` - Fast mode hardening
+
+See [test/README.md](test/README.md) for detailed test documentation.
 
 ## Continuous Integration
 
@@ -220,17 +290,24 @@ See `.github/workflows/ci.yml` for details.
 
 ```
 .
-├── CMakeLists.txt                # Main CMake configuration with compiler sections
-├── CMakePresets.json             # Presets for all compiler/arch combinations
-├── CMakeUserPresets.json.example # Example user-specific default presets
-├── CMakeUserPresets.json         # User-specific default presets (not committed)
-├── main.cpp                      # Hello World test application
-├── README.md                     # This file
-├── .clang-tidy                  # clang-tidy configuration
-├── .gitignore                   # Git ignore patterns
+├── CMakeLists.txt                    # Main CMake configuration with hardening flags
+├── CMakePresets.json                 # Presets for all compiler/arch combinations
+├── CMakeUserPresets.json.example     # Example user-specific default presets
+├── CMakeUserPresets.json             # User-specific default presets (not committed)
+├── README.md                         # This file
+├── OBSERVE_SEMANTIC_TEST.md          # Implementation details for observe semantic test
+├── .clang-tidy                       # clang-tidy configuration
+├── .gitignore                        # Git ignore patterns
+├── test/
+│   ├── README.md                     # Test documentation
+│   ├── report.cpp                    # Report test (logs compiler/platform info)
+│   └── test_observe_assertions.cpp   # Observe semantic test
+├── tools/
+│   ├── diagnostic-flags/             # Diagnostic flags analysis tools
+│   └── inconsistency-analysis/       # Inconsistency analysis tools
 └── .github/
     └── workflows/
-        └── ci.yml               # CI configuration
+        └── ci.yml                    # CI configuration
 ```
 
 ## License

@@ -50,7 +50,7 @@ function(apply_hardening_flags target)
         # Debug-specific flags
         target_compile_options(${target} PRIVATE
             $<$<CONFIG:Debug>:
-                -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_FAST
+                -D_LIBCPP_HARDENING_MODE=_LIBCPP_HARDENING_MODE_DEBUG
                 -D_LIBCPP_ASSERTION_SEMANTIC=_LIBCPP_ASSERTION_SEMANTIC_OBSERVE
             >
         )

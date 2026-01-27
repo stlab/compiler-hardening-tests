@@ -25,7 +25,7 @@ int main() {
 // Redirect stderr to stdout so we can capture the assertion message
 #if defined(__APPLE__) && defined(__clang__)
   // On macOS with observe semantic, this should log an error
-  volatile int out_of_bounds = sp[10]; // Out of bounds access
+  volatile udt out_of_bounds = sp[10]; // Out of bounds access
   (void)out_of_bounds;                 // Prevent optimization
 
   std::cout << "Continued execution after out-of-bounds access\n";

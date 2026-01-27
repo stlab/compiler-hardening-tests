@@ -54,10 +54,10 @@ The following tests are configured:
 
 1. **`report`**: Always passes, logs compiler and platform information (all platforms)
 2. **`hardening_assertions`**: Runs on all platforms
-   - **On macOS**: Uses `WILL_FAIL TRUE` + `PASS_REGULAR_EXPRESSION "Triggering hardening violation"`. Test passes when both conditions are met: (1) test prints the expected message, and (2) crashes with non-zero exit. This proves hardening is working.
+   - **On macOS**: Wrapped in shell command that detects signal termination. Test passes when exit code > 128 (indicating process was killed by signal: SIGABRT=134, SIGILL=132).
    - **On other platforms**: Runs normally, should pass if hardening not available
 
-The macOS test configuration ensures that hardening must both detect the violation (by printing the message) AND abort the program (non-zero exit).
+The macOS test uses: `bash -c "$<TARGET_FILE:test-hardening-assertions>; exit $(( $? > 128 ? 0 : 1 ))"` which converts signal termination (exit code > 128) to success (exit 0).
 
 ## Compiler Flags
 
@@ -106,7 +106,7 @@ Test project /path/to/build
 100% tests passed, 0 tests failed out of 2
 ```
 
-The test uses `WILL_FAIL TRUE` (expects non-zero exit) combined with `PASS_REGULAR_EXPRESSION "Triggering hardening violation"` (expects specific output before crash). Both conditions must be met for the test to pass.
+The shell wrapper checks the exit code: if > 128 (signal termination), it returns 0 (success); otherwise returns 1 (failure).
 
 **When run directly** (bypassing shell wrapper):
 ```bash
@@ -133,9 +133,8 @@ HARDENING_TEST_SKIPPED
 ```
 
 **Key points:**
-- On macOS, the test passes when: (1) it prints "Triggering hardening violation", AND (2) crashes with non-zero exit
-- `WILL_FAIL TRUE` expects non-zero exit (the crash)
-- `PASS_REGULAR_EXPRESSION` ensures the hardening code path was reached
+- On macOS, the program **must be killed by signal** (exit code > 128) for the test to pass
+- Shell wrapper converts signal termination to test success (exit 0)
 - On non-macOS platforms, the test passes normally (no hardening)
 
 ## Debugging
@@ -150,26 +149,26 @@ If a test fails:
 
 ### How the macOS Test Works
 
-The macOS test uses CTest properties to validate the crash:
+The macOS test uses a shell wrapper to detect and validate signal termination:
 
-```cmake
-set_tests_properties(hardening_assertions PROPERTIES
-    WILL_FAIL TRUE                                    # Expect non-zero exit (crash)
-    PASS_REGULAR_EXPRESSION "Triggering hardening violation"  # Must print this before crash
-)
+```bash
+bash -c "$<TARGET_FILE:test-hardening-assertions>; exit $(( $? > 128 ? 0 : 1 ))"
 ```
 
 **How it works:**
-1. `WILL_FAIL TRUE` - CTest expects the test to exit with non-zero status (which happens when killed by signal)
-2. `PASS_REGULAR_EXPRESSION` - CTest requires the test output to contain "Triggering hardening violation"
-3. Both conditions must be satisfied for the test to pass
+1. Runs the test executable
+2. Captures exit code in `$?`
+3. When process is killed by signal: exit code = `128 + signal_number`
+   - SIGABRT (6) → exit code 134
+   - SIGILL (4) → exit code 132
+4. Uses arithmetic: if exit code > 128, return 0 (success), else return 1 (failure)
+5. CTest sees exit 0 → test passes ✓
 
 **Why this works:**
-- If hardening is working: Test prints the message, then crashes → both conditions met → ✓ PASS
-- If hardening is NOT working: Test prints message, then prints "ERROR: Program continued..." and exits 1 → pattern matches but wrong message → ✗ FAIL  
-- If test fails before the violation: Pattern not found → ✗ FAIL
+- If hardening is working: Process killed by signal → exit code 134 or 132 → wrapper returns 0 → ✓ PASS
+- If hardening is NOT working: Process exits normally with 0 or 1 → exit code ≤ 128 → wrapper returns 1 → ✗ FAIL
 
-**Success criteria on macOS**: The program must print "Triggering hardening violation" and then be killed by a signal (SIGABRT or SIGILL).
+**Success criteria on macOS**: The program must be killed by a signal (SIGABRT or SIGILL) when the hardening violation occurs.
 
 ## References
 

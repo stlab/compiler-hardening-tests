@@ -246,23 +246,27 @@ set_tests_properties(report PROPERTIES
 add_executable(test-hardening-assertions test/test_observe_assertions.cpp)
 apply_hardening_flags(test-hardening-assertions)
 
-add_test(
-    NAME hardening_assertions
-    COMMAND test-hardening-assertions
-)
-
 # Test expectations differ by platform
 if(APPLE)
-    # On macOS with hardening, we expect:
-    # 1. The test to print "Triggering hardening violation" before crashing
-    # 2. Non-zero exit (crash from signal)
-    # Together these prove hardening is working
+    # On macOS, wrap in shell command that detects signal termination
+    # Exit code > 128 indicates process was killed by signal (128 + signal_number)
+    # SIGABRT = 6 → exit code 134
+    # SIGILL = 4 → exit code 132
+    add_test(
+        NAME hardening_assertions
+        COMMAND bash -c "$<TARGET_FILE:test-hardening-assertions>; exit $(( $? > 128 ? 0 : 1 ))"
+    )
+    
     set_tests_properties(hardening_assertions PROPERTIES
-        LABELS "macOS;hardening;expects-crash"
-        PASS_REGULAR_EXPRESSION "Exception"
+        LABELS "macOS;hardening;expects-signal"
     )
 else()
     # On other platforms, run normally (may or may not have hardening)
+    add_test(
+        NAME hardening_assertions
+        COMMAND test-hardening-assertions
+    )
+    
     set_tests_properties(hardening_assertions PROPERTIES
         LABELS "hardening"
     )

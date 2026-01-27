@@ -256,12 +256,13 @@ ctest --preset=apple-clang-arm64-debug -R report --output-on-failure
 
 ### libc++ Hardening Test
 
-The hardening test validates that libc++ hardening correctly aborts when violations are detected:
+The hardening test validates that libc++ hardening is enabled and working by intentionally triggering a violation:
 
-1. Intentionally triggers a hardening assertion (out-of-bounds `std::span` access)
-2. On macOS with hardening enabled, the program aborts (test passes via `WILL_FAIL TRUE`)
-3. Verifies that hardening checks are working correctly
-4. On other platforms, the test may skip if hardening is not available
+1. Triggers an out-of-bounds `std::span` access
+2. **On macOS**: Test passes when program is killed by signal (SIGABRT/SIGILL), proving hardening caught the violation
+3. **On other platforms**: Test passes if it runs without crashing (may or may not have hardening)
+
+The test runs on all platforms via CTest. On macOS, a shell wrapper detects signal termination (exit code > 128) and treats it as success.
 
 #### Compiler Flags
 

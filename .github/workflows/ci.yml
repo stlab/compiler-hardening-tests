@@ -51,8 +51,8 @@ jobs:
       - name: Build
         run: cmake --build --preset=${{ matrix.preset }}
 
-      - name: Run
-        run: ./build/${{ matrix.preset }}/hardening-test
+      - name: Run Tests
+        run: ctest --test-dir build/${{ matrix.preset }} --output-on-failure
 
   # macOS builds with Apple Clang
   macos:
@@ -77,10 +77,10 @@ jobs:
         run: cmake --preset=${{ matrix.preset }}
 
       - name: Build
-        run: cmake --build --preset=${{ matrix.preset }}
+        run: cmake --build --preset=${{ matrix.preset }} --verbose
 
-      - name: Run
-        run: ./build/${{ matrix.preset }}/hardening-test
+      - name: Run Tests
+        run: ctest --test-dir build/${{ matrix.preset }} --output-on-failure
 
   # Windows builds with MSVC
   windows:
@@ -107,8 +107,8 @@ jobs:
       - name: Build
         run: cmake --build --preset=${{ matrix.preset }}
 
-      - name: Run
-        run: .\build\${{ matrix.preset }}\hardening-test.exe
+      - name: Run Tests
+        run: ctest --test-dir build\${{ matrix.preset }} --output-on-failure
 
   # WebAssembly build with Emscripten
   emscripten:
@@ -137,8 +137,8 @@ jobs:
       - name: List generated files
         run: ls -lh ./build/emscripten-wasm/
 
-      - name: Run with Node.js
-        run: $EMSDK_NODE ./build/emscripten-wasm/hardening-test.js
+      - name: Run Tests
+        run: ctest --test-dir build/emscripten-wasm --output-on-failure
 
   # Static Analysis
   static-analysis:

@@ -261,7 +261,7 @@ if(APPLE)
     # SIGILL = 4 → exit code 132
     add_test(
         NAME hardening_assertions
-        COMMAND bash -c "$<TARGET_FILE:test-hardening-assertions>; exit $(( $? > 128 ? 0 : 1 ))"
+        COMMAND bash -c "\"$<TARGET_FILE:test-hardening-assertions>\"; exit $(( $? > 128 ? 0 : 1 ))"
     )
     
     set_tests_properties(hardening_assertions PROPERTIES
